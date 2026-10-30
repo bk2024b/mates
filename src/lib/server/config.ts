@@ -36,7 +36,12 @@ export function configuration() {
         missing.push('LIVEKIT_URL LiveKit Cloud requis pour les commandes');
     } catch {}
   }
-  return { configured: missing.length === 0, missing, version: '0.3.0', identityMode: mode };
+  if (
+    process.env.MATES_CHAT === 'enabled' &&
+    (mode !== 'supabase' || !process.env.SUPABASE_SECRET_KEY?.trim())
+  )
+    missing.push('SUPABASE_SECRET_KEY et mode supabase requis pour le chat');
+  return { configured: missing.length === 0, missing, version: '0.4.0', identityMode: mode };
 }
 export function livekitConfig() {
   if (!configuration().configured) throw new Error('MATES_NOT_CONFIGURED');

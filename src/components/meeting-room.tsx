@@ -33,6 +33,7 @@ import {
   Headphones,
   Shield,
   Radio,
+  MessageCircle,
 } from 'lucide-react';
 import type { JoinInfo, MediaProfile } from '@/lib/contracts';
 import { captureError, captureOptions, PROFILES, publishOptions, roomOptions } from '@/lib/media';
@@ -40,6 +41,10 @@ import { Brand } from './brand';
 import { VideoView, AudioView, ScreenView } from './media-track';
 import { api, ApiRequestError } from '@/lib/api';
 import { useRoomControl } from './use-room-control';
+import { useRoomChat } from './use-room-chat';
+import { ChatPanel } from './chat-panel';
+import { DeviceSettings } from './device-settings';
+import { REACTIONS } from '@/lib/chat';
 import { RoomControlsPanel } from './room-controls-panel';
 import { QualityPanel } from './quality-panel';
 function initial(name: string) {
@@ -71,7 +76,8 @@ export function MeetingRoom({
   const [busy, setBusy] = useState(false);
   const [profile, setProfile] = useState<MediaProfile>('motion');
   const [copied, setCopied] = useState(false);
-  const [tab, setTab] = useState<'people' | 'quality'>('people');
+  const [tab, setTab] = useState<'people' | 'quality' | 'chat'>(session.chat ? 'chat' : 'people');
+  const chat = useRoomChat(session, room, tab === 'chat');
   const [audioAllowed, setAudioAllowed] = useState(true);
   const [voiceVolume, setVoiceVolume] = useState(80);
   const [contentVolume, setContentVolume] = useState(100);
@@ -209,7 +215,7 @@ export function MeetingRoom({
     };
   }, [room, session.serverUrl, session.token, session.controls, session.room.id, onSession]);
   const participants: Participant[] = [room.localParticipant, ...room.remoteParticipants.values()];
-  const sharer = participants.find((p) => p.isScreenShareEnabled);
+  const sharer = participants.find((p) => p.isScreenShareEnabled && !chat.blocked.has(p.identity));
   const screen = sharer?.getTrackPublication(Track.Source.ScreenShare)?.track;
   const localShare = sharer === room.localParticipant;
   const local = room.localParticipant;
@@ -326,6 +332,15 @@ export function MeetingRoom({
             </span>
           </div>
           <div className="stage" ref={stageRef}>
+            {session.chat && (
+              <div className="floating-reactions" aria-live="off">
+                {chat.reactions.map((r) => (
+                  <span key={r.id} style={{ left: `${12 + (r.id.charCodeAt(0) % 70)}%` }}>
+                    {r.emoji}
+                  </span>
+                ))}
+              </div>
+            )}
             {screen ? (
               <>
                 <ScreenView
@@ -420,7 +435,9 @@ export function MeetingRoom({
                   className={`participant-tile ${p.isSpeaking ? 'speaking' : ''}`}
                   key={p.identity || 'local'}
                 >
-                  {camera && (!lowCamera || !sharer || p.isLocal) ? (
+                  {camera &&
+                  !chat.blocked.has(p.identity) &&
+                  (!lowCamera || !sharer || p.isLocal) ? (
                     <VideoView track={camera} mirror={p.isLocal} className="camera-video" />
                   ) : (
                     <div className="tile-avatar">{initial(p.name || 'Mate')}</div>
@@ -437,6 +454,21 @@ export function MeetingRoom({
               );
             })}
           </div>
+          {session.chat && (
+            <div className="reaction-bar" aria-label="Réactions du salon">
+              {REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => void chat.react(emoji)}
+                  aria-label={`Réagir ${emoji}`}
+                  disabled={!connected}
+                >
+                  {emoji}
+                </button>
+              ))}
+              {chat.error && tab !== 'chat' && <span role="status">{chat.error}</span>}
+            </div>
+          )}
           <div className="room-toolbar">
             <div className="device-controls">
               <button
@@ -504,6 +536,11 @@ export function MeetingRoom({
         </section>
         <aside className="room-sidebar">
           <div className="sidebar-tabs">
+            {session.chat && (
+              <button className={tab === 'chat' ? 'selected' : ''} onClick={() => setTab('chat')}>
+                <MessageCircle size={15} /> Chat {chat.unread > 0 && <span>{chat.unread}</span>}
+              </button>
+            )}
             <button className={tab === 'people' ? 'selected' : ''} onClick={() => setTab('people')}>
               <Users size={16} /> Mates <span>{participants.length}</span>
             </button>
@@ -514,7 +551,18 @@ export function MeetingRoom({
               <Activity size={16} /> Qualité
             </button>
           </div>
-          {tab === 'people' ? (
+          {tab === 'chat' ? (
+            <ChatPanel
+              messages={chat.messages}
+              identity={session.identity}
+              sending={chat.sending}
+              loading={chat.loading}
+              error={chat.error}
+              hasOlder={chat.hasOlder}
+              onOlder={chat.older}
+              onSend={chat.send}
+            />
+          ) : tab === 'people' ? (
             <>
               <div className="people-list">
                 {participants.map((p) => (
@@ -531,6 +579,14 @@ export function MeetingRoom({
                       className={`quality-dot ${p.connectionQuality}`}
                       title={`Connexion : ${p.connectionQuality}`}
                     />
+                    {session.chat && !p.isLocal && (
+                      <button
+                        className="person-block"
+                        onClick={() => void chat.toggleBlock(p.identity)}
+                      >
+                        {chat.blocked.has(p.identity) ? 'Débloquer' : 'Bloquer'}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -619,6 +675,7 @@ export function MeetingRoom({
                   Suspendre les caméras reçues pendant un partage
                 </label>
                 <p className="small muted">Préserve la bande passante pour la scène.</p>
+                <DeviceSettings room={room} />
               </section>
             </>
           )}
@@ -644,7 +701,10 @@ export function MeetingRoom({
               key={pub.trackSid}
               track={pub.track as RemoteAudioTrack}
               volume={
-                (pub.source === Track.Source.ScreenShareAudio ? contentVolume : voiceVolume) / 100
+                chat.blocked.has(p.identity)
+                  ? 0
+                  : (pub.source === Track.Source.ScreenShareAudio ? contentVolume : voiceVolume) /
+                    100
               }
             />
           ) : null,

@@ -2,7 +2,7 @@
 
 **Les mêmes passions. Le même moment.**
 
-Version 0.3 — étapes 1 à 4 : diffusion WebRTC et intégration des comptes Supabase, activable après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.4 — diffusion WebRTC, comptes Supabase, commandes du salon, chat et réactions, activables après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
@@ -126,3 +126,7 @@ docs/                    Architecture, recette et état de livraison
 ```
 
 Dépendances exactes dans `package.json` et `package-lock.json`. Utiliser `npm ci` pour reproduire l’installation. Le ZIP n’inclut ni `node_modules`, ni `.next`, ni `.env.local`.
+
+## Chat et réactions
+
+Voir [docs/CHAT.md](docs/CHAT.md) pour appliquer la migration et activer `MATES_CHAT`. Inclut historique, blocage personnel et sélection des périphériques dans l’onglet Qualité.

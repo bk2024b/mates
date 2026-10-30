@@ -7,6 +7,7 @@ export type RoomMetadata = {
   version: 1;
   identityMode?: 'prototype' | 'supabase';
   controls?: boolean;
+  chat?: boolean;
   title: string;
   hostIdentity: string;
   createdAt: string;
@@ -23,6 +24,7 @@ export function metadata(room: Pick<Room, 'metadata'>): RoomMetadata {
       m.version === 1 &&
       typeof m.title === 'string' &&
       typeof m.hostIdentity === 'string' &&
+      (m.chat === undefined || typeof m.chat === 'boolean') &&
       (m.controls === undefined || typeof m.controls === 'boolean') &&
       (m.identityMode === undefined ||
         m.identityMode === 'prototype' ||
@@ -83,6 +85,7 @@ export async function joinToken(room: Room, identity: string, name: string): Pro
     identity,
     role,
     controls: !!metadata(room).controls,
+    chat: !!metadata(room).chat,
     room: publicRoom(room),
   };
 }

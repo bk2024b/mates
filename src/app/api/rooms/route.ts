@@ -34,13 +34,17 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       identityMode: identity.mode,
       controls: identity.mode === 'supabase' && controlsEnabled(),
+      chat: identity.mode === 'supabase' && process.env.MATES_CHAT === 'enabled',
     };
     await persistRoom(identity, id, input.title);
     try {
-      if (meta.controls) {
+      if (meta.controls || meta.chat) {
         const configured = await controlDatabase()
           .from('rooms')
-          .update({ controls_enabled: true })
+          .update({
+            ...(meta.controls ? { controls_enabled: true } : {}),
+            ...(meta.chat ? { chat_enabled: true } : {}),
+          })
           .eq('id', id);
         if (configured.error) throw controlDatabaseFailure(configured);
       }

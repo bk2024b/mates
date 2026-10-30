@@ -24,6 +24,7 @@ export type JoinInfo = {
   identity: string;
   role: 'host' | 'guest';
   controls?: boolean;
+  chat?: boolean;
   room: RoomInfo;
 };
 export type HealthInfo = { configured: boolean; missing: string[]; version: string };
