@@ -46,3 +46,14 @@ test('une salle étrangère ou des métadonnées invalides sont refusées', () =
   assert.throws(() => metadata({ metadata: '{}' }));
   assert.throws(() => metadata({ metadata: 'broken' }));
 });
+
+test('un salon contrôlé ne donne aucune source écran au jeton initial de l’hôte', async () => {
+  const controlled = {
+    ...room,
+    metadata: JSON.stringify({ ...JSON.parse(room.metadata), controls: true }),
+  } as Room;
+  const data = await joinToken(controlled, 'host-identity', 'Panda');
+  const token = await verifier.verify(data.token);
+  assert.equal(data.controls, true);
+  assert.deepEqual(token.video?.canPublishSources, ['microphone', 'camera']);
+});

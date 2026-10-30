@@ -4,6 +4,7 @@ import { createRoomSchema } from '@/lib/contracts';
 import { ApiError, failure, readJson, rateLimit, validateMutation } from '@/lib/server/http';
 import { resolveIdentity, applyIdentityCookie, persistRoom, enroll } from '@/lib/server/identity';
 import { roomService, type RoomMetadata } from '@/lib/server/rooms';
+import { controlsEnabled, controlDatabase } from '@/lib/server/room-controls';
 import { configuration } from '@/lib/server/config';
 export const runtime = 'nodejs';
 export async function POST(req: NextRequest) {
@@ -28,9 +29,22 @@ export async function POST(req: NextRequest) {
       hostIdentity: identity.id,
       createdAt: new Date().toISOString(),
       identityMode: identity.mode,
+      controls: identity.mode === 'supabase' && controlsEnabled(),
     };
     await persistRoom(identity, id, input.title);
     try {
+      if (meta.controls) {
+        const configured = await controlDatabase()
+          .from('rooms')
+          .update({ controls_enabled: true })
+          .eq('id', id);
+        if (configured.error)
+          throw new ApiError(
+            503,
+            'CONTROLS_NOT_CONFIGURED',
+            'La migration des commandes de salon doit être appliquée.',
+          );
+      }
       await roomService().createRoom({
         name: id,
         maxParticipants: 12,

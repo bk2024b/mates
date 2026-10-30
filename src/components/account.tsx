@@ -43,13 +43,14 @@ export function Account() {
     setError('');
     setMessage('');
     try {
-      const result = await api<{ message?: string }>(`/api/auth/${mode}`, {
+      const result = await api<{ message?: string; authenticated?: boolean }>(`/api/auth/${mode}`, {
         email,
         password,
         nickname,
       });
       setPassword('');
-      if (mode === 'login') {
+      if (mode === 'login' || (mode === 'signup' && result.authenticated)) {
+        if (nickname) sessionStorage.setItem('mates:nickname', nickname);
         window.location.assign(next);
         return;
       }

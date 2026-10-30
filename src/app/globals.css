@@ -1764,3 +1764,53 @@ input[type='range'] {
   gap: 8px;
   color: #627b43;
 }
+
+.host-controls {
+  padding: 18px;
+  border-top: 1px solid #33432b;
+  font-size: 10px;
+  color: #9eb88c;
+}
+.host-controls h3 {
+  font-size: 12px;
+  letter-spacing: 0;
+  margin-bottom: 15px;
+  color: #c7dab6;
+}
+.control-person {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 12px 0;
+  border-bottom: 1px solid #30402b;
+}
+.control-person > span:first-child {
+  width: 100%;
+  font-weight: bold;
+}
+.host-controls button {
+  background: #30432a;
+  color: #c4d9af;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 9px;
+}
+.host-controls button:disabled {
+  opacity: 0.4;
+}
+.host-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+.host-controls p,
+.control-summary {
+  font-size: 9px;
+  line-height: 1.8;
+  margin-top: 12px;
+  color: #9baf8b;
+}
+.control-summary {
+  padding: 0 20px 15px;
+}

@@ -38,6 +38,9 @@ import type { JoinInfo, MediaProfile } from '@/lib/contracts';
 import { captureError, captureOptions, PROFILES, publishOptions, roomOptions } from '@/lib/media';
 import { Brand } from './brand';
 import { VideoView, AudioView, ScreenView } from './media-track';
+import { api, ApiRequestError } from '@/lib/api';
+import { useRoomControl } from './use-room-control';
+import { RoomControlsPanel } from './room-controls-panel';
 import { QualityPanel } from './quality-panel';
 function initial(name: string) {
   return name.trim().slice(0, 2).toUpperCase();
@@ -49,8 +52,17 @@ function isHost(p: Participant) {
     return false;
   }
 }
-export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: () => void }) {
+export function MeetingRoom({
+  session,
+  onLeave,
+  onSession,
+}: {
+  session: JoinInfo;
+  onLeave: () => void;
+  onSession: (next: JoinInfo) => void;
+}) {
   const [room] = useState(() => new Room(roomOptions));
+  const control = useRoomControl(session, room);
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<ConnectionState>(ConnectionState.Disconnected);
   const [started, setStarted] = useState(false);
@@ -107,11 +119,42 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
       if (!disposed) setAudioAllowed(room.canPlaybackAudio);
     };
     const disconnected = (reason?: DisconnectReason) => {
+      if (
+        session.controls &&
+        reason === DisconnectReason.PARTICIPANT_REMOVED &&
+        !disposed &&
+        !leaving.current
+      ) {
+        // Une révocation de scène force une reconnexion avec un jeton minimal neuf.
+        // Une exclusion réelle sera refusée par l’API et ne déclenchera pas de boucle.
+        const reconnectName =
+          room.localParticipant.name || sessionStorage.getItem('mates:nickname') || 'Mate';
+        void (async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1800));
+          if (disposed || leaving.current) return;
+          try {
+            const next = await api<JoinInfo>(`/api/rooms/${session.room.id}/join`, {
+              name: reconnectName,
+            });
+            if (!disposed) onSession(next);
+          } catch {
+            if (!disposed)
+              setFatal(
+                'L’accès au salon a été interrompu. Reviens à l’entrée pour vérifier si tu peux le rejoindre.',
+              );
+          }
+        })();
+        return;
+      }
       if (!disposed && !leaving.current) {
         setFatal(
           reason === DisconnectReason.DUPLICATE_IDENTITY
             ? 'Cette session a été ouverte dans un autre onglet. Utilise un autre navigateur pour un deuxième participant.'
-            : 'La connexion au salon a été interrompue. Reviens à l’entrée pour réessayer.',
+            : reason === DisconnectReason.PARTICIPANT_REMOVED
+              ? 'L’hôte t’a retiré du salon.'
+              : reason === DisconnectReason.ROOM_DELETED
+                ? 'L’hôte a fermé le salon.'
+                : 'La connexion au salon a été interrompue. Reviens à l’entrée pour réessayer.',
         );
       }
     };
@@ -164,7 +207,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
         await room.disconnect();
       });
     };
-  }, [room, session.serverUrl, session.token]);
+  }, [room, session.serverUrl, session.token, session.controls, session.room.id, onSession]);
   const participants: Participant[] = [room.localParticipant, ...room.remoteParticipants.values()];
   const sharer = participants.find((p) => p.isScreenShareEnabled);
   const screen = sharer?.getTrackPublication(Track.Source.ScreenShare)?.track;
@@ -185,6 +228,9 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
       }
     }
   }, [room, lowCamera, sharer, revision]);
+  useEffect(() => {
+    if (control.error) setMessage(control.error);
+  }, [control.error]);
   async function toggleShare() {
     if (busy) return;
     setBusy(true);
@@ -192,8 +238,11 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
     try {
       if (local.isScreenShareEnabled) {
         await local.setScreenShareEnabled(false);
+        if (session.controls) await control.release();
       } else {
-        await local.setScreenShareEnabled(true, captureOptions(profile), publishOptions(profile));
+        if (session.controls) await control.startShare(profile);
+        else
+          await local.setScreenShareEnabled(true, captureOptions(profile), publishOptions(profile));
         const audio = local.getTrackPublication(Track.Source.ScreenShareAudio);
         if (!audio)
           setMessage(
@@ -201,7 +250,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
           );
       }
     } catch (e) {
-      setMessage(captureError(e));
+      setMessage(e instanceof ApiRequestError ? e.message : captureError(e));
     } finally {
       setBusy(false);
       setRevision((v) => v + 1);
@@ -307,20 +356,23 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
                   <b className="orbit-star">✦</b>
                 </div>
                 <h2>
-                  {session.role === 'host'
-                    ? 'Une scène pour ta passion.'
-                    : 'Le moment va commencer.'}
+                  {control.eligible ? 'Une scène pour ta passion.' : 'Le moment va commencer.'}
                 </h2>
                 <p>
-                  {session.role === 'host'
+                  {control.eligible
                     ? 'Une vidéo, un projet, une idée. Partage ton écran pour lancer le moment.'
                     : 'Installe-toi. L’hôte peut partager son écran à tout moment.'}
                 </p>
-                {session.role === 'host' && (
+                {control.eligible && (
                   <button
                     className="button primary"
                     onClick={toggleShare}
-                    disabled={!connected || busy || !supported}
+                    disabled={
+                      !connected ||
+                      busy ||
+                      !supported ||
+                      (session.controls && (control.busy || !!control.snapshot?.busy))
+                    }
                   >
                     {busy ? <LoaderCircle size={18} className="spin" /> : <MonitorUp size={18} />}
                     Partager mon écran
@@ -405,11 +457,16 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
               </button>
             </div>
             <span className="toolbar-divider" />
-            {session.role === 'host' ? (
+            {control.eligible ? (
               <button
                 className={`share-button ${local.isScreenShareEnabled ? 'sharing' : ''}`}
                 onClick={toggleShare}
-                disabled={!connected || busy || !supported}
+                disabled={
+                  !connected ||
+                  busy ||
+                  !supported ||
+                  (session.controls && (control.busy || !!control.snapshot?.busy))
+                }
               >
                 {busy ? (
                   <LoaderCircle size={18} className="spin" />
@@ -477,6 +534,19 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
                   </div>
                 ))}
               </div>
+              {session.controls && (
+                <RoomControlsPanel
+                  snapshot={control.snapshot}
+                  people={participants}
+                  busy={control.busy}
+                  command={async (action, target) => {
+                    if (action === 'close') leaving.current = true;
+                    const ok = await control.command(action, target);
+                    if (action === 'close' && ok) onLeave();
+                    else if (action === 'close') leaving.current = false;
+                  }}
+                />
+              )}
               <div className="sidebar-intro">
                 <span className="feature-icon lime">
                   <Headphones size={20} />
@@ -498,7 +568,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
                 <h3>
                   <SlidersHorizontal size={16} /> Réglages
                 </h3>
-                {session.role === 'host' && (
+                {control.eligible && (
                   <>
                     <label htmlFor="profile">Profil de diffusion</label>
                     <select
@@ -553,7 +623,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
             </>
           )}
           <div className="sidebar-bottom">
-            <span className="tiny-badge">PROTOTYPE 0.2</span>
+            <span className="tiny-badge">PROTOTYPE 0.3</span>
             <p>
               Pas d’enregistrement par Mates.
               <br />
@@ -562,7 +632,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
           </div>
         </aside>
       </div>
-      {!supported && session.role === 'host' && (
+      {!supported && control.eligible && (
         <div className="compatibility-note">
           Le partage nécessite un navigateur compatible sur ordinateur et HTTPS (ou localhost).
         </div>

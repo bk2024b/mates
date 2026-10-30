@@ -19,6 +19,8 @@ if (
   !['prototype', 'supabase'].includes(process.env.MATES_IDENTITY_MODE)
 )
   missing.push('MATES_IDENTITY_MODE (prototype ou supabase)');
+if (process.env.MATES_ROOM_CONTROLS === 'enabled' && !process.env.SUPABASE_SECRET_KEY?.trim())
+  missing.push('SUPABASE_SECRET_KEY');
 if (missing.length) {
   console.error('À configurer : ' + missing.join(', '));
   process.exitCode = 1;

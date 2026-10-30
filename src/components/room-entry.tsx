@@ -47,6 +47,7 @@ export function RoomEntry({ roomId }: { roomId: string }) {
   if (join)
     return (
       <MeetingRoom
+        onSession={setJoin}
         session={join}
         onLeave={() => {
           setJoin(null);

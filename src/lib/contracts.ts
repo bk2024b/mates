@@ -23,8 +23,21 @@ export type JoinInfo = {
   serverUrl: string;
   identity: string;
   role: 'host' | 'guest';
+  controls?: boolean;
   room: RoomInfo;
 };
 export type HealthInfo = { configured: boolean; missing: string[]; version: string };
 export type MediaProfile = 'motion' | 'detail';
 export type MediaQuality = 'auto' | 'high' | 'medium' | 'low';
+
+export type ControlSnapshot = {
+  identity: string;
+  hostId: string;
+  status: 'open' | 'closed';
+  stageOwner: string | null;
+  stageExpiresAt: string | null;
+  busy: boolean;
+  presenters: string[];
+};
+export type ControlAction =
+  'acquire' | 'stop' | 'presenter_add' | 'presenter_remove' | 'kick' | 'close';

@@ -4,6 +4,7 @@ import { identityMode } from '@/lib/identity-mode';
 import { supabaseServer } from '@/lib/supabase/server';
 import { canCreate } from '@/lib/server/identity';
 import { ApiError, failure, rateLimit, readJson, validateMutation } from '@/lib/server/http';
+import { signupIsConnected } from '@/lib/signup';
 import { authFailure } from '@/lib/server/auth-errors';
 import { nicknameSchema } from '@/lib/contracts';
 export const runtime = 'nodejs';
@@ -91,10 +92,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
             options: { data: { nickname: input.nickname }, emailRedirectTo: redirect },
           });
       if (result.error) throw authFailure(result.error, 'signup');
+      let connected = signupIsConnected(
+        result.data.user,
+        'session' in result.data && !!result.data.session,
+      );
+      if (current.user?.is_anonymous && result.data.user && !result.data.user.is_anonymous) {
+        const refreshed = await client.auth.refreshSession();
+        connected =
+          !refreshed.error && signupIsConnected(refreshed.data.user, !!refreshed.data.session);
+      }
       return json({
         ok: true,
-        message:
-          'Consulte ton email pour confirmer ton compte, puis connecte-toi. Si le compte existe déjà, utilise la connexion ou la récupération du mot de passe.',
+        authenticated: connected,
+        ...(connected ? {} : { message: 'Ta demande d’inscription a été prise en compte.' }),
       });
     }
     if (action === 'recover') {

@@ -25,7 +25,18 @@ export function configuration() {
     for (const key of ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY'])
       if (!process.env[key]?.trim()) missing.push(key);
   }
-  return { configured: missing.length === 0, missing, version: '0.2.0', identityMode: mode };
+  if (
+    process.env.MATES_ROOM_CONTROLS === 'enabled' &&
+    (mode !== 'supabase' || !process.env.SUPABASE_SECRET_KEY?.trim())
+  )
+    missing.push('SUPABASE_SECRET_KEY et mode supabase requis pour les commandes');
+  if (process.env.MATES_ROOM_CONTROLS === 'enabled') {
+    try {
+      if (!new URL(process.env.LIVEKIT_URL || '').hostname.endsWith('.livekit.cloud'))
+        missing.push('LIVEKIT_URL LiveKit Cloud requis pour les commandes');
+    } catch {}
+  }
+  return { configured: missing.length === 0, missing, version: '0.3.0', identityMode: mode };
 }
 export function livekitConfig() {
   if (!configuration().configured) throw new Error('MATES_NOT_CONFIGURED');

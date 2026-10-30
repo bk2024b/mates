@@ -67,3 +67,9 @@ Les routes `/api/auth/session`, `/api/auth/login`, `/api/auth/signup`, `/api/aut
 Pour un salon Supabase, l’identité média est l’UUID vérifié par Auth. L’insertion d’un salon utilise la session utilisateur et les politiques RLS, jamais une clé administrative. La participation passe par une fonction SQL qui calcule le rôle à partir du propriétaire. Le serveur compare ensuite le propriétaire de la base et celui des métadonnées LiveKit avant de délivrer un jeton média. En cas d’échec de provisioning, le nouveau salon est supprimé au mieux des deux services ; un échec partiel reste fermé à l’entrée si la base ne confirme pas l’accès.
 
 Les salons historiques conservent le mode inscrit dans leurs métadonnées, même après activation des comptes. Aucun pseudo ou identifiant fourni dans un formulaire ne permet de choisir sa propre identité technique ou son rôle.
+
+## Évolution étape 4 en version 0.3
+
+Les nouveaux salons contrôlés déclarent `controls=true` dans leurs métadonnées média et `controls_enabled=true` dans la base, uniquement après activation explicite. Les utilisateurs conservent des jetons d’entrée minimaux. `/api/rooms/:id/control` vérifie Auth et l’appartenance au salon avant d’accéder aux commandes privilégiées.
+
+`begin_mates_control` et `finish_mates_control` sont réservées au rôle serveur Supabase. Elles sérialisent les commandes, calculent les droits et suivent une clé d’idempotence. Le navigateur ne peut ni réécrire le détenteur de scène ni finaliser une commande. Les appels média restent entre deux transactions courtes : toute erreur intermédiaire conserve un verrou fermé. Les limites et la recette sont documentées dans `docs/COMMANDES_SALON.md`.

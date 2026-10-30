@@ -2,7 +2,7 @@
 
 **Les mêmes passions. Le même moment.**
 
-Version 0.2 — étapes 1 à 3 : diffusion WebRTC et intégration des comptes Supabase, activable après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.3 — étapes 1 à 4 : diffusion WebRTC et intégration des comptes Supabase, activable après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
@@ -65,7 +65,7 @@ Pour tester depuis deux appareils, utiliser une URL **HTTPS** accessible aux deu
 
 ## Périmètre du prototype
 
-Seul **l’hôte** peut diffuser. La désignation d’autres présentateurs et le transfert de scène seront ajoutés à l’étape 4. Les comptes durables et les sessions invitées Supabase sont intégrés en mode `supabase`. Le chat, les réactions, le blocage, l’exclusion et la découverte restent dans les étapes suivantes. Aucun faux salon public ni faux compteur d’audience.
+Dans les salons historiques, seul **l’hôte** peut diffuser. Les nouveaux salons contrôlés permettent les présentateurs désignés et une scène exclusive après activation de l’étape 4. Les comptes durables et les sessions invitées Supabase sont intégrés en mode `supabase`. Le chat, les réactions, le blocage, l’exclusion et la découverte restent dans les étapes suivantes. Aucun faux salon public ni faux compteur d’audience.
 
 En mode prototype, le cookie de session dure 24 heures. Effacer les cookies, changer de navigateur ou changer de secret fait perdre le rôle d’hôte. L’identité est anonyme publiquement, pas au sens d’un anonymat réseau garanti. Une URL non répertoriée n’est pas un contrôle d’accès fort. Les sessions invitées et les quotas en mémoire sont adaptés à un pilote privé, pas à une ouverture publique sans contrôles supplémentaires.
 
@@ -76,6 +76,10 @@ Aucun enregistrement n’est déclenché par l’application. Le transport WebRT
 ## Activer les comptes Supabase
 
 La mise à jour conserve les salons actuels. Ajouter `SUPABASE_URL` et `SUPABASE_PUBLISHABLE_KEY`, appliquer la migration SQL, activer les connexions anonymes et configurer les emails, puis définir `MATES_IDENTITY_MODE=supabase` et redéployer. Guide détaillé : [docs/SUPABASE.md](docs/SUPABASE.md). Aucun secret `service_role` requis.
+
+## Activer les commandes de l’hôte
+
+Présentateurs désignés, arrêt et reprise de scène, exclusion et fermeture : appliquer la seconde migration et ajouter la clé serveur distincte, selon [docs/COMMANDES_SALON.md](docs/COMMANDES_SALON.md). Les salons historiques restent accessibles. Cette activation est indépendante de la correction du message d’inscription.
 
 ## Mesures et qualité
 

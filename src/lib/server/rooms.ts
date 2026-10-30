@@ -6,6 +6,7 @@ export type RoomMetadata = {
   app: 'mates';
   version: 1;
   identityMode?: 'prototype' | 'supabase';
+  controls?: boolean;
   title: string;
   hostIdentity: string;
   createdAt: string;
@@ -22,6 +23,7 @@ export function metadata(room: Pick<Room, 'metadata'>): RoomMetadata {
       m.version === 1 &&
       typeof m.title === 'string' &&
       typeof m.hostIdentity === 'string' &&
+      (m.controls === undefined || typeof m.controls === 'boolean') &&
       (m.identityMode === undefined ||
         m.identityMode === 'prototype' ||
         m.identityMode === 'supabase')
@@ -66,7 +68,7 @@ export async function joinToken(room: Room, identity: string, name: string): Pro
     canPublishData: false,
     canUpdateOwnMetadata: false,
     canPublishSources:
-      role === 'host'
+      role === 'host' && !metadata(room).controls
         ? [
             TrackSource.MICROPHONE,
             TrackSource.CAMERA,
@@ -80,6 +82,7 @@ export async function joinToken(room: Room, identity: string, name: string): Pro
     serverUrl: config.url,
     identity,
     role,
+    controls: !!metadata(room).controls,
     room: publicRoom(room),
   };
 }

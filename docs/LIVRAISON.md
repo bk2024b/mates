@@ -25,3 +25,11 @@ Après configuration des clés, suivre `docs/RECETTE.md`. Le prototype ne doit p
 Comptes Supabase, sessions anonymes, conversion d’invité, confirmation email, récupération du mot de passe, schéma des profils et salons, politiques RLS et persistance des participations ajoutés. Activation explicite pour préserver le prototype déployé.
 
 19 tests automatisés passent, dont l’exécution de la migration et des politiques RLS sur PostgreSQL embarqué avec PGlite. Ces tests vérifient notamment l’impossibilité pour un invité de créer un salon, de modifier son identifiant de profil ou de se donner le rôle hôte. Les tables `auth.users`, fonctions `auth.uid()` et `auth.jwt()` sont des fixtures locales dans ce test ; le service Auth distant, les emails et PostgREST du projet Supabase réel restent à valider après configuration. Aucune migration distante ni clé réelle n’a été utilisée ici.
+
+## Mise à jour 0.3 étape 4
+
+Le message de confirmation email disparaît lorsqu’une inscription ouvre directement une session permanente confirmée : Mates retourne alors vers les salons. Le cas restant reçoit une confirmation neutre, sans affirmer qu’un email a été envoyé.
+
+Ajout des présentateurs désignés, scène exclusive avec verrou transactionnel, reprise et arrêt par l’hôte, exclusion, fermeture et révocation explicite des anciens jetons LiveKit Cloud. L’activation exige la seconde migration et une clé Supabase serveur séparée. Les anciens salons continuent avec leur mode historique.
+
+30 tests automatisés passent, dont les migrations PostgreSQL, les droits de commande, le verrouillage, l’idempotence, les exclusions, les commandes devenues périmées après fermeture, la vérification des pistes avant transfert et les jetons initiaux sans source écran. Compilation de production vérifiée. Les transferts et révocations réels entre appareils restent à vérifier sur le projet Cloud configuré, selon `docs/COMMANDES_SALON.md`.

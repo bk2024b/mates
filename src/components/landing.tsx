@@ -80,7 +80,7 @@ export function Landing() {
           </Link>
         </nav>
         <span className="version-pill">
-          <span /> Prototype 0.2
+          <span /> Prototype 0.3
         </span>
       </header>
       <section className="hero wrap">
@@ -297,7 +297,7 @@ export function Landing() {
       <footer className="site-footer wrap">
         <Brand />
         <span>Les mêmes passions. Le même moment.</span>
-        <span>Étape 3 · Comptes et identités</span>
+        <span>Étape 4 · Salons et présentateurs</span>
       </footer>
     </main>
   );
