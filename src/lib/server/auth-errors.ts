@@ -1,3 +1,4 @@
+import { errorDiagnostic } from './auth-diagnostics';
 import { ApiError } from './http';
 type ProviderError = { code?: string; status?: number };
 /** Traductions contrôlées : jamais de message brut, email, mot de passe ou jeton du fournisseur. */
@@ -70,7 +71,12 @@ export function authFailure(
 ): ApiError {
   const providerCode = error.code && /^[a-z_]{1,80}$/.test(error.code) ? error.code : 'unknown';
   // Diagnostic du déploiement uniquement. Ne jamais ajouter error.message ni le corps de la requête.
-  console.warn('[mates:auth]', { operation, providerCode, status: error.status });
+  console.warn('[mates:auth]', {
+    operation,
+    providerCode,
+    status: error.status,
+    ...errorDiagnostic(error),
+  });
   const known = messages[providerCode];
   if (known) return new ApiError(known.status, `AUTH_${providerCode.toUpperCase()}`, known.message);
   const status = error.status === 429 ? 429 : 503;

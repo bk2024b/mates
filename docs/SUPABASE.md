@@ -74,3 +74,5 @@ Mates traduit désormais les codes Auth Supabase et journalise uniquement `opera
 - `captcha_failed` : une protection CAPTCHA est activée dans Supabase ; son intégration au formulaire doit être configurée avant que cette inscription puisse aboutir.
 
 Ne pas conclure à une panne de la base sans lire le code Auth. La migration des profils ne se déclenche pas au moment de `signUp`.
+
+Si `providerCode` vaut `unknown`, le log `[mates:auth]` inclut aussi `errorName`, `causeName`, `networkCode` et `reason`, issus de listes fermées. `[mates:auth:http]` indique uniquement le statut HTTP et si la réponse est JSON, HTML ou autre. Un retour HTML peut notamment signaler une mauvaise URL de service. `SUPABASE_URL` doit être l’URL du projet (par exemple `https://votre-reference.supabase.co`), pas l’URL du tableau de bord `supabase.com/dashboard/...` ni une URL LiveKit. Ces diagnostics ne suffisent pas à eux seuls à conclure à une cause précise ; lire les catégories réellement observées.

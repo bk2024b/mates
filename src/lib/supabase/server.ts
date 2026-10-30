@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { diagnosticFetch } from '../server/auth-diagnostics';
 import { cookies } from 'next/headers';
 import { supabaseSettings } from '../identity-mode';
 /** Routes uniquement : aucune lecture de session dans un composant serveur mis en cache. */
@@ -6,6 +7,7 @@ export async function supabaseServer() {
   const { url, key } = supabaseSettings();
   const store = await cookies();
   return createServerClient(url, key, {
+    global: { fetch: diagnosticFetch },
     cookieOptions: {
       httpOnly: true,
       sameSite: 'lax',
