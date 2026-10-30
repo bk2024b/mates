@@ -19,3 +19,9 @@ Après configuration des clés, suivre `docs/RECETTE.md`. Le prototype ne doit p
 ## Suite prévue
 
 Étape 3 : Supabase, identité durable, règles d’accès. Étape 4 : présentateurs désignés, contrôle exclusif de scène, révocation, fermeture et exclusions. Puis chat, réactions et découverte publique selon le plan.
+
+## Mise à jour 0.2 étape 3
+
+Comptes Supabase, sessions anonymes, conversion d’invité, confirmation email, récupération du mot de passe, schéma des profils et salons, politiques RLS et persistance des participations ajoutés. Activation explicite pour préserver le prototype déployé.
+
+19 tests automatisés passent, dont l’exécution de la migration et des politiques RLS sur PostgreSQL embarqué avec PGlite. Ces tests vérifient notamment l’impossibilité pour un invité de créer un salon, de modifier son identifiant de profil ou de se donner le rôle hôte. Les tables `auth.users`, fonctions `auth.uid()` et `auth.jwt()` sont des fixtures locales dans ce test ; le service Auth distant, les emails et PostgREST du projet Supabase réel restent à valider après configuration. Aucune migration distante ni clé réelle n’a été utilisée ici.

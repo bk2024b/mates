@@ -1,3 +1,4 @@
+import { identityMode } from '../identity-mode';
 export function configuration() {
   const missing = [
     'LIVEKIT_URL',
@@ -14,7 +15,17 @@ export function configuration() {
     if (process.env.LIVEKIT_URL) missing.push('LIVEKIT_URL (URL invalide)');
   }
   if (process.env.NODE_ENV === 'production' && !process.env.APP_ORIGIN) missing.push('APP_ORIGIN');
-  return { configured: missing.length === 0, missing, version: '0.1.0' };
+  let mode: 'prototype' | 'supabase' = 'prototype';
+  try {
+    mode = identityMode();
+  } catch {
+    missing.push('MATES_IDENTITY_MODE (prototype ou supabase)');
+  }
+  if (mode === 'supabase') {
+    for (const key of ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY'])
+      if (!process.env[key]?.trim()) missing.push(key);
+  }
+  return { configured: missing.length === 0, missing, version: '0.2.0', identityMode: mode };
 }
 export function livekitConfig() {
   if (!configuration().configured) throw new Error('MATES_NOT_CONFIGURED');

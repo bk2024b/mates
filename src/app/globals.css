@@ -1751,3 +1751,16 @@ input[type='range'] {
     transition: none;
   }
 }
+
+.account-logout {
+  margin-top: 22px;
+  color: #79896c;
+  font-size: 12px;
+}
+.account-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #627b43;
+}

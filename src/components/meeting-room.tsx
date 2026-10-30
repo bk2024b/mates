@@ -553,7 +553,7 @@ export function MeetingRoom({ session, onLeave }: { session: JoinInfo; onLeave: 
             </>
           )}
           <div className="sidebar-bottom">
-            <span className="tiny-badge">PROTOTYPE 0.1</span>
+            <span className="tiny-badge">PROTOTYPE 0.2</span>
             <p>
               Pas d’enregistrement par Mates.
               <br />

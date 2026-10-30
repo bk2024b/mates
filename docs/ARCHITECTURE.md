@@ -57,3 +57,13 @@ Documentation et signatures SDK vérifiées pendant l’implémentation :
 - https://docs.livekit.io/reference/client-sdk-js/interfaces/TrackPublishOptions.html
 - https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
 - https://developer.chrome.com/docs/web-platform/screen-sharing-controls
+
+## Évolution étape 3 en version 0.2
+
+Le fonctionnement ci-dessus décrit le mode historique `prototype`. Le mode `supabase` est activé par variable d’environnement après installation de la migration. Consulter `docs/SUPABASE.md` pour l’installation et les limites.
+
+Les routes `/api/auth/session`, `/api/auth/login`, `/api/auth/signup`, `/api/auth/logout`, `/api/auth/recover` et `/api/auth/password` gèrent l’identité côté serveur. Le callback `/auth/callback` échange le code PKCE et n’accepte que des chemins de retour explicitement autorisés. Les cookies sont HttpOnly et les réponses personnelles non mises en cache.
+
+Pour un salon Supabase, l’identité média est l’UUID vérifié par Auth. L’insertion d’un salon utilise la session utilisateur et les politiques RLS, jamais une clé administrative. La participation passe par une fonction SQL qui calcule le rôle à partir du propriétaire. Le serveur compare ensuite le propriétaire de la base et celui des métadonnées LiveKit avant de délivrer un jeton média. En cas d’échec de provisioning, le nouveau salon est supprimé au mieux des deux services ; un échec partiel reste fermé à l’entrée si la base ne confirme pas l’accès.
+
+Les salons historiques conservent le mode inscrit dans leurs métadonnées, même après activation des comptes. Aucun pseudo ou identifiant fourni dans un formulaire ne permet de choisir sa propre identité technique ou son rôle.

@@ -5,6 +5,7 @@ import { ApiError } from './http';
 export type RoomMetadata = {
   app: 'mates';
   version: 1;
+  identityMode?: 'prototype' | 'supabase';
   title: string;
   hostIdentity: string;
   createdAt: string;
@@ -20,7 +21,10 @@ export function metadata(room: Pick<Room, 'metadata'>): RoomMetadata {
       m.app === 'mates' &&
       m.version === 1 &&
       typeof m.title === 'string' &&
-      typeof m.hostIdentity === 'string'
+      typeof m.hostIdentity === 'string' &&
+      (m.identityMode === undefined ||
+        m.identityMode === 'prototype' ||
+        m.identityMode === 'supabase')
     )
       return m;
   } catch {

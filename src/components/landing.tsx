@@ -16,8 +16,10 @@ import {
 } from 'lucide-react';
 import { Brand } from './brand';
 import { api } from '@/lib/api';
+import type { AccountSession } from './account';
 import type { HealthInfo } from '@/lib/contracts';
 export function Landing() {
+  const [account, setAccount] = useState<AccountSession | null>(null);
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
@@ -27,6 +29,11 @@ export function Landing() {
   const [health, setHealth] = useState<HealthInfo | null>(null);
   const [healthError, setHealthError] = useState(false);
   useEffect(() => {
+    api<AccountSession>('/api/auth/session')
+      .then(setAccount)
+      .catch(() => {});
+    setName(sessionStorage.getItem('mates:nickname') || '');
+    setTitle(sessionStorage.getItem('mates:draft-title') || '');
     api<HealthInfo>('/api/health')
       .then(setHealth)
       .catch(() => setHealthError(true));
@@ -37,6 +44,12 @@ export function Landing() {
     setBusy(true);
     try {
       if (mode === 'create') {
+        sessionStorage.setItem('mates:nickname', name);
+        sessionStorage.setItem('mates:draft-title', title);
+        if (account?.mode === 'supabase' && !account.user?.canCreate) {
+          window.location.assign('/account');
+          return;
+        }
         const data = await api<{ id: string }>('/api/rooms', { name, title });
         sessionStorage.setItem('mates:nickname', name);
         window.location.assign(`/room/${data.id}`);
@@ -61,12 +74,13 @@ export function Landing() {
         <Brand />
         <nav>
           <a href="#comment">Comment ça marche</a>
+          {account?.mode === 'supabase' && <Link href="/account">Mon compte</Link>}
           <Link href="/lab">
             Le labo <ArrowUpRight size={14} />
           </Link>
         </nav>
         <span className="version-pill">
-          <span /> Prototype 0.1
+          <span /> Prototype 0.2
         </span>
       </header>
       <section className="hero wrap">
@@ -283,7 +297,7 @@ export function Landing() {
       <footer className="site-footer wrap">
         <Brand />
         <span>Les mêmes passions. Le même moment.</span>
-        <span>Étapes 1 & 2 · Prototype technique</span>
+        <span>Étape 3 · Comptes et identités</span>
       </footer>
     </main>
   );

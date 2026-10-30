@@ -2,11 +2,11 @@
 
 **Les mêmes passions. Le même moment.**
 
-Prototype fonctionnel des étapes 1 et 2 : projet Next.js et diffusion WebRTC d’écran avec audio. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.2 — étapes 1 à 3 : diffusion WebRTC et intégration des comptes Supabase, activable après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
-Prérequis : Node.js **22 ou supérieur**, npm, un projet LiveKit Cloud (ou un serveur LiveKit existant). Aucun compte Supabase n’est nécessaire à ce stade.
+Prérequis : Node.js **22 ou supérieur**, npm, un projet LiveKit Cloud (ou un serveur LiveKit existant). Supabase reste facultatif tant que `MATES_IDENTITY_MODE=prototype`. Pour activer les comptes, suivre [docs/SUPABASE.md](docs/SUPABASE.md).
 
 ```bash
 npm ci
@@ -65,13 +65,17 @@ Pour tester depuis deux appareils, utiliser une URL **HTTPS** accessible aux deu
 
 ## Périmètre du prototype
 
-Seul **l’hôte** peut diffuser. La désignation d’autres présentateurs et le transfert de scène seront ajoutés à l’étape 4. Supabase, les comptes durables, le chat, les réactions, le blocage, l’exclusion et la découverte de salons restent dans les étapes suivantes. Aucun faux salon public ni faux compteur d’audience.
+Seul **l’hôte** peut diffuser. La désignation d’autres présentateurs et le transfert de scène seront ajoutés à l’étape 4. Les comptes durables et les sessions invitées Supabase sont intégrés en mode `supabase`. Le chat, les réactions, le blocage, l’exclusion et la découverte restent dans les étapes suivantes. Aucun faux salon public ni faux compteur d’audience.
 
-Le cookie de session dure 24 heures. Effacer les cookies, changer de navigateur ou changer de secret fait perdre le rôle d’hôte. L’identité est anonyme publiquement, pas au sens d’un anonymat réseau garanti. Une URL non répertoriée n’est pas un contrôle d’accès fort. Les sessions invitées et les quotas en mémoire sont adaptés à un pilote privé, pas à une ouverture publique sans contrôles supplémentaires.
+En mode prototype, le cookie de session dure 24 heures. Effacer les cookies, changer de navigateur ou changer de secret fait perdre le rôle d’hôte. L’identité est anonyme publiquement, pas au sens d’un anonymat réseau garanti. Une URL non répertoriée n’est pas un contrôle d’accès fort. Les sessions invitées et les quotas en mémoire sont adaptés à un pilote privé, pas à une ouverture publique sans contrôles supplémentaires.
 
-Les salons sont stockés dans LiveKit et sont temporaires : un salon jamais rejoint expire après environ 10 minutes ; après le départ du dernier participant, environ 2 minutes. Le départ de l’hôte ne ferme pas immédiatement un salon encore occupé ; la fermeture et le transfert contrôlés relèvent de l’étape 4.
+Les salles média sont temporaires dans LiveKit. En mode Supabase, les profils, les métadonnées de salon et les participations sont aussi persistés en base. Les salles média expirent : un salon jamais rejoint expire après environ 10 minutes ; après le départ du dernier participant, environ 2 minutes. Le départ de l’hôte ne ferme pas immédiatement un salon encore occupé ; la fermeture et le transfert contrôlés relèvent de l’étape 4.
 
 Aucun enregistrement n’est déclenché par l’application. Le transport WebRTC est chiffré ; aucun chiffrement applicatif de bout en bout contre le fournisseur média n’est implémenté. Les limites exactes du navigateur et du matériel restent déterminantes.
+
+## Activer les comptes Supabase
+
+La mise à jour conserve les salons actuels. Ajouter `SUPABASE_URL` et `SUPABASE_PUBLISHABLE_KEY`, appliquer la migration SQL, activer les connexions anonymes et configurer les emails, puis définir `MATES_IDENTITY_MODE=supabase` et redéployer. Guide détaillé : [docs/SUPABASE.md](docs/SUPABASE.md). Aucun secret `service_role` requis.
 
 ## Mesures et qualité
 
