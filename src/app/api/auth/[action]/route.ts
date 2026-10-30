@@ -4,13 +4,15 @@ import { identityMode } from '@/lib/identity-mode';
 import { supabaseServer } from '@/lib/supabase/server';
 import { canCreate } from '@/lib/server/identity';
 import { ApiError, failure, rateLimit, readJson, validateMutation } from '@/lib/server/http';
+import { authFailure } from '@/lib/server/auth-errors';
 import { nicknameSchema } from '@/lib/contracts';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 function json(data: unknown) {
   return NextResponse.json(data, { headers: { 'Cache-Control': 'private, no-store' } });
 }
-const credentials = z.object({ email: z.email().max(254), password: z.string().min(8).max(128) });
+const emailSchema = z.string().trim().pipe(z.email()).pipe(z.string().max(254));
+const credentials = z.object({ email: emailSchema, password: z.string().min(8).max(128) });
 function enabled() {
   if (identityMode() !== 'supabase')
     throw new ApiError(
@@ -66,12 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
     if (action === 'login') {
       const input = credentials.parse(body);
       const { error } = await client.auth.signInWithPassword(input);
-      if (error)
-        throw new ApiError(
-          401,
-          'LOGIN_FAILED',
-          'Connexion refusée. Vérifie tes identifiants et la confirmation de ton email.',
-        );
+      if (error) throw authFailure(error, 'login');
       return json({ ok: true });
     }
     if (action === 'signup') {
@@ -93,12 +90,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
             password: input.password,
             options: { data: { nickname: input.nickname }, emailRedirectTo: redirect },
           });
-      if (result.error)
-        throw new ApiError(
-          400,
-          'SIGNUP_FAILED',
-          'Inscription impossible. Vérifie les informations ou essaie de te connecter.',
-        );
+      if (result.error) throw authFailure(result.error, 'signup');
       return json({
         ok: true,
         message:
@@ -106,16 +98,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
       });
     }
     if (action === 'recover') {
-      const input = z.object({ email: z.email().max(254) }).parse(body);
+      const input = z.object({ email: emailSchema }).parse(body);
       const { error } = await client.auth.resetPasswordForEmail(input.email, {
         redirectTo: `${process.env.APP_ORIGIN || req.nextUrl.origin}/auth/callback?next=${encodeURIComponent('/account?reset=1')}`,
       });
-      if (error)
-        throw new ApiError(
-          503,
-          'AUTH_UNAVAILABLE',
-          'La récupération est indisponible. Réessaie plus tard.',
-        );
+      if (error) throw authFailure(error, 'recover');
       return json({
         ok: true,
         message:
@@ -132,12 +119,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
           'Ouvre d’abord le lien de récupération ou reconnecte-toi.',
         );
       const result = await client.auth.updateUser({ password });
-      if (result.error)
-        throw new ApiError(
-          400,
-          'PASSWORD_FAILED',
-          'Le mot de passe n’a pas pu être modifié. Une nouvelle vérification peut être nécessaire.',
-        );
+      if (result.error) throw authFailure(result.error, 'password');
       return json({ ok: true, message: 'Mot de passe mis à jour.' });
     }
     const { error } = await client.auth.signOut({ scope: 'local' });

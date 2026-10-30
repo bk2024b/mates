@@ -62,3 +62,15 @@ La suppression et la rétention des comptes anonymes ne sont pas automatisées d
 - https://supabase.com/docs/guides/auth/server-side/creating-a-client
 - https://supabase.com/docs/guides/auth/server-side/advanced-guide
 - https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## Diagnostiquer une inscription refusée
+
+Mates traduit désormais les codes Auth Supabase et journalise uniquement `operation`, `providerCode` et `status` dans les logs serveur Vercel. Aucun message brut du fournisseur, email, mot de passe ou jeton n’est journalisé. Pour une erreur générique restante, consulter ces trois champs et **Supabase → Authentication → Logs**.
+
+- `email_address_not_authorized` : le service email intégré refuse les destinataires hors de l’équipe du projet. Configurer un SMTP pour les autres utilisateurs.
+- `over_email_send_rate_limit` : quota d’envoi atteint ; attendre le délai ou configurer le service email et ses quotas.
+- `signup_disabled` / `email_provider_disabled` : vérifier l’activation des inscriptions et du fournisseur Email.
+- `weak_password` : les règles de mot de passe du projet sont plus strictes que le minimum du formulaire.
+- `captcha_failed` : une protection CAPTCHA est activée dans Supabase ; son intégration au formulaire doit être configurée avant que cette inscription puisse aboutir.
+
+Ne pas conclure à une panne de la base sans lire le code Auth. La migration des profils ne se déclenche pas au moment de `signUp`.
