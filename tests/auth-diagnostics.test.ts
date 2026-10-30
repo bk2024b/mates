@@ -50,3 +50,20 @@ test('la réponse HTML est conservée pour le SDK et journalisée sans contenu n
     fetchMock.mock.restore();
   }
 });
+
+test('une réponse 204 réussie ne produit pas une fausse alerte', async () => {
+  const warn = mock.method(console, 'warn', () => {});
+  const fetchMock = mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response(null, { status: 204 }),
+  );
+  try {
+    const r = await diagnosticFetch('https://example.invalid/rest/v1/profiles');
+    assert.equal(r.status, 204);
+    assert.equal(warn.mock.callCount(), 0);
+  } finally {
+    warn.mock.restore();
+    fetchMock.mock.restore();
+  }
+});

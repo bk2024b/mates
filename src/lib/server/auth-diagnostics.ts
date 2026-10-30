@@ -53,7 +53,8 @@ export const diagnosticFetch: typeof fetch = async (input, init) => {
     throw error;
   }
   const type = response.headers.get('content-type') || '';
-  if (!response.ok || !type.toLowerCase().includes('json')) {
+  const emptySuccess = response.ok && [204, 205].includes(response.status);
+  if (!response.ok || (!emptySuccess && !type.toLowerCase().includes('json'))) {
     console.warn('[mates:auth:http]', {
       status: response.status,
       responseType: type.toLowerCase().includes('json')

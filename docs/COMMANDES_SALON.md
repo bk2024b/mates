@@ -55,3 +55,7 @@ Les tests automatisés couvrent les transactions PostgreSQL et l’isolation des
 10. Vérifier la capacité maximale et la réentrée automatique après retrait d’une permission.
 
 Les jetons et horloges distribués doivent être testés sur le service réel avant toute promesse d’exclusivité stricte en production. Cette version reste un pilote.
+
+## Refus 401 pendant la création
+
+Un `PATCH /rest/v1/rooms` qui répond 401 correspond à un refus d’authentification de la connexion privilégiée, pas à une preuve de migration manquante. Vérifier la valeur complète de `SUPABASE_SECRET_KEY` dans l’environnement Vercel réellement utilisé, le projet associé et l’état de la clé, puis redéployer. Conserver la clé publique qui fonctionne dans `SUPABASE_PUBLISHABLE_KEY`. Une absence de colonne/table reçoit maintenant un diagnostic distinct. Une réponse 204 est un succès sans contenu et ne produit plus d’alerte de type de réponse.

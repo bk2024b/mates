@@ -90,3 +90,35 @@ export async function closeMedia(
     throw error;
   }
 }
+
+export function controlDatabaseFailure(result: {
+  status: number;
+  error: { code?: string } | null;
+}): ApiError {
+  const code = result.error?.code;
+  const providerCode = code && /^[A-Za-z0-9_]{1,40}$/.test(code) ? code : 'unknown';
+  console.warn('[mates:control:database]', { status: result.status, providerCode });
+  if (result.status === 401)
+    return new ApiError(
+      503,
+      'CONTROL_KEY_REJECTED',
+      'La clé serveur Supabase est refusée. Vérifie SUPABASE_SECRET_KEY et son association au projet Supabase.',
+    );
+  if (result.status === 403)
+    return new ApiError(
+      503,
+      'CONTROL_KEY_FORBIDDEN',
+      'La connexion serveur Supabase ne dispose pas des droits nécessaires. Vérifie la clé secrète serveur, distincte de la clé publique.',
+    );
+  if (['42703', '42P01', 'PGRST204', 'PGRST205'].includes(providerCode))
+    return new ApiError(
+      503,
+      'CONTROL_MIGRATION_REQUIRED',
+      'La migration des commandes de salon doit être appliquée.',
+    );
+  return new ApiError(
+    503,
+    'CONTROL_DATABASE_UNAVAILABLE',
+    'La configuration des commandes du salon n’a pas pu être enregistrée. Consulte les logs serveur.',
+  );
+}

@@ -4,7 +4,11 @@ import { createRoomSchema } from '@/lib/contracts';
 import { ApiError, failure, readJson, rateLimit, validateMutation } from '@/lib/server/http';
 import { resolveIdentity, applyIdentityCookie, persistRoom, enroll } from '@/lib/server/identity';
 import { roomService, type RoomMetadata } from '@/lib/server/rooms';
-import { controlsEnabled, controlDatabase } from '@/lib/server/room-controls';
+import {
+  controlsEnabled,
+  controlDatabase,
+  controlDatabaseFailure,
+} from '@/lib/server/room-controls';
 import { configuration } from '@/lib/server/config';
 export const runtime = 'nodejs';
 export async function POST(req: NextRequest) {
@@ -38,12 +42,7 @@ export async function POST(req: NextRequest) {
           .from('rooms')
           .update({ controls_enabled: true })
           .eq('id', id);
-        if (configured.error)
-          throw new ApiError(
-            503,
-            'CONTROLS_NOT_CONFIGURED',
-            'La migration des commandes de salon doit être appliquée.',
-          );
+        if (configured.error) throw controlDatabaseFailure(configured);
       }
       await roomService().createRoom({
         name: id,
