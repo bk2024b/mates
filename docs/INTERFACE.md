@@ -8,7 +8,7 @@ Accueil, exploration, compte et entrée des salons partagent une navigation resp
 
 ## Salon mobile
 
-Sous 900 px, la barre des commandes reste en bas de l’écran et tient compte de la zone de sécurité du téléphone. Le bouton de discussion ouvre un panneau regroupant chat, participants, modération et réglages. Le panneau peut être fermé pour libérer la scène. Les messages non lus restent signalés lorsque le panneau est fermé. La touche Échap ferme le panneau.
+Sous 900 px, la barre des commandes reste en bas de l’écran et tient compte de la zone de sécurité du téléphone. Le chat est visible par défaut sous la scène, avec les onglets participants et réglages. Il reste dans le flux de la page et ne recouvre pas l’écran partagé. Une icône permet de le masquer ; le bouton de discussion de la barre des commandes permet de le réafficher. Les messages non lus restent signalés lorsque le panneau est fermé. La touche Échap ferme le panneau.
 
 Les champs utilisent une taille adaptée au mobile ; les commandes principales mesurent au moins 44 px. Les animations sont réduites selon la préférence du système. Les erreurs de chargement du compte, les liens de salon expirés et les pages introuvables proposent une action de récupération.
 

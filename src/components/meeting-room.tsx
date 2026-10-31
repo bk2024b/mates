@@ -34,6 +34,7 @@ import {
   Shield,
   Radio,
   MessageCircle,
+  EyeOff,
 } from 'lucide-react';
 import type { JoinInfo, MediaProfile } from '@/lib/contracts';
 import { captureError, captureOptions, PROFILES, publishOptions, roomOptions } from '@/lib/media';
@@ -77,7 +78,7 @@ export function MeetingRoom({
   const [profile, setProfile] = useState<MediaProfile>('motion');
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<'people' | 'quality' | 'chat'>(session.chat ? 'chat' : 'people');
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(true);
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const media = window.matchMedia('(max-width: 900px)');
@@ -538,13 +539,15 @@ export function MeetingRoom({
             <button
               className={`control-button panel-toggle ${panelOpen ? 'active' : ''}`}
               aria-label={
-                panelOpen ? 'Fermer le panneau du salon' : 'Ouvrir le chat et les participants'
+                panelOpen
+                  ? 'Masquer le chat et les participants'
+                  : 'Afficher le chat et les participants'
               }
               aria-expanded={panelOpen}
               aria-controls="room-panel"
               onClick={() => setPanelOpen((v) => !v)}
             >
-              <MessageCircle size={20} />
+              {panelOpen ? <EyeOff size={20} /> : <MessageCircle size={20} />}
               {chat.unread > 0 && <b className="unread-dot">{chat.unread}</b>}
             </button>
             <button className="leave-button" onClick={() => void leave()}>
@@ -570,16 +573,6 @@ export function MeetingRoom({
           id="room-panel"
           aria-label="Conversation et réglages"
         >
-          <div className="mobile-panel-heading">
-            <strong>Le salon, côté coulisses.</strong>
-            <button
-              className="icon-button"
-              aria-label="Fermer le panneau"
-              onClick={() => setPanelOpen(false)}
-            >
-              <X size={20} />
-            </button>
-          </div>
           <div className="sidebar-tabs">
             {session.chat && (
               <button className={tab === 'chat' ? 'selected' : ''} onClick={() => setTab('chat')}>
@@ -594,6 +587,13 @@ export function MeetingRoom({
               onClick={() => setTab('quality')}
             >
               <Activity size={16} /> Qualité
+            </button>
+            <button
+              className="mobile-chat-hide"
+              aria-label="Masquer le chat et les participants"
+              onClick={() => setPanelOpen(false)}
+            >
+              <EyeOff size={18} />
             </button>
           </div>
           {tab === 'chat' ? (

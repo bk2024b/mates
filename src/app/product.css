@@ -829,7 +829,7 @@ button,
 .meeting .error {
   font-size: 12px;
 }
-.mobile-panel-heading,
+.mobile-chat-hide,
 .panel-toggle {
   display: none;
 }
@@ -979,30 +979,24 @@ button,
   }
   .room-sidebar {
     display: none;
-    position: fixed;
-    z-index: 30;
-    bottom: calc(94px + env(safe-area-inset-bottom));
-    left: 14px;
-    right: 14px;
+    position: relative;
+    margin: 0 14px 16px;
     border: 1px solid #526047;
     border-radius: 20px;
-    box-shadow: 0 -10px 60px #0006;
-    max-height: calc(100dvh - 180px);
-    overflow-y: auto;
+    box-shadow: none;
+    max-height: none;
+    overflow: hidden;
+    min-height: 0;
   }
   .room-sidebar.panel-open {
     display: block;
   }
-  .mobile-panel-heading {
-    display: flex;
+  .sidebar-tabs .mobile-chat-hide {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px 15px 5px;
-    font-size: 12px;
-  }
-  .mobile-panel-heading button {
-    width: 44px;
-    height: 44px;
+    justify-content: center;
+    flex: 0 0 44px;
+    padding: 8px;
   }
   .sidebar-tabs {
     position: sticky;
@@ -1012,7 +1006,7 @@ button,
     padding: 8px;
   }
   .room-sidebar .chat-panel {
-    height: min(52dvh, 520px);
+    height: clamp(240px, 36dvh, 380px);
     max-height: none;
     min-height: 230px;
   }
@@ -1382,8 +1376,7 @@ button,
     margin-left: auto;
   }
   .room-sidebar {
-    left: 10px;
-    right: 10px;
+    margin-inline: 10px;
   }
   .participants-strip {
     gap: 8px;
