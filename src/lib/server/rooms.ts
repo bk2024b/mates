@@ -1,5 +1,5 @@
 import { AccessToken, RoomServiceClient, TrackSource, type Room } from 'livekit-server-sdk';
-import type { JoinInfo, RoomInfo } from '../contracts';
+import { cinemaSchema, type CinemaInfo, type JoinInfo, type RoomInfo } from '../contracts';
 import { livekitConfig } from './config';
 import { ApiError } from './http';
 export type RoomMetadata = {
@@ -8,6 +8,7 @@ export type RoomMetadata = {
   identityMode?: 'prototype' | 'supabase';
   controls?: boolean;
   chat?: boolean;
+  cinema?: CinemaInfo;
   visibility?: 'public' | 'link';
   title: string;
   hostIdentity: string;
@@ -26,6 +27,7 @@ export function metadata(room: Pick<Room, 'metadata'>): RoomMetadata {
       typeof m.title === 'string' &&
       typeof m.hostIdentity === 'string' &&
       (m.visibility === undefined || m.visibility === 'public' || m.visibility === 'link') &&
+      (m.cinema === undefined || cinemaSchema.safeParse(m.cinema).success) &&
       (m.chat === undefined || typeof m.chat === 'boolean') &&
       (m.controls === undefined || typeof m.controls === 'boolean') &&
       (m.identityMode === undefined ||
@@ -47,6 +49,8 @@ export function publicRoom(room: Room): RoomInfo {
     maxParticipants: room.maxParticipants,
     createdAt: m.createdAt,
     visibility: m.visibility || 'link',
+    kind: m.cinema ? 'cinema' : 'lounge',
+    ...(m.cinema ? { cinema: m.cinema } : {}),
   };
 }
 export async function findRoom(id: string) {

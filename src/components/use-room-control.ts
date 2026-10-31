@@ -8,7 +8,13 @@ import {
   type LocalTrackPublication,
 } from 'livekit-client';
 import { api } from '@/lib/api';
-import type { JoinInfo, ControlSnapshot, ControlAction, MediaProfile } from '@/lib/contracts';
+import type {
+  JoinInfo,
+  ControlSnapshot,
+  ControlAction,
+  MediaProfile,
+  ShareSource,
+} from '@/lib/contracts';
 import { captureOptions, publishOptions } from '@/lib/media';
 export function useRoomControl(session: JoinInfo, room: Room) {
   const [snapshot, setSnapshot] = useState<ControlSnapshot | null>(null);
@@ -68,12 +74,17 @@ export function useRoomControl(session: JoinInfo, room: Room) {
     ? !!snapshot &&
       (snapshot.hostId === session.identity || snapshot.presenters.includes(session.identity))
     : session.role === 'host';
-  async function startShare(profile: MediaProfile) {
-    let tracks: LocalTrack[] = [];
+  async function startShare(
+    profile: MediaProfile,
+    source: ShareSource = 'tab',
+    prepared?: LocalTrack[],
+  ) {
+    let tracks: LocalTrack[] = prepared || [];
     let acquired = false;
     try {
       // Le sélecteur doit être appelé directement depuis le clic, avant toute requête API.
-      tracks = await room.localParticipant.createScreenTracks(captureOptions(profile));
+      if (!prepared)
+        tracks = await room.localParticipant.createScreenTracks(captureOptions(profile, source));
       await send('acquire');
       acquired = true;
       const deadline = Date.now() + 3500;

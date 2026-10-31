@@ -140,6 +140,7 @@ export function Explore() {
                   <span className="explore-live">
                     <span className="live-dot" /> EN DIRECT
                   </span>
+                  {r.kind === 'cinema' && <span className="cinema-label">Cinéma</span>}
                   <h2>{r.title}</h2>
                   <p>
                     <Users size={16} />

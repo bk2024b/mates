@@ -2,7 +2,7 @@
 
 **Les mêmes passions. Le même moment.**
 
-Version 0.6 — diffusion WebRTC, comptes Supabase, commandes du salon, chat, réactions et découverte des salons. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.7 — diffusion WebRTC, comptes Supabase, commandes du salon, chat, réactions et découverte des salons. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
@@ -142,3 +142,7 @@ Identité visuelle commune, navigation mobile, formulaires adaptés au tactile e
 ## Capacité de 50 participants
 
 En mode Supabase, appliquer `supabase/migrations/202610310002_room_capacity.sql` après les trois migrations précédentes, puis redéployer. Les nouveaux salons accueillent 50 participants, hôte compris. Les salons existants gardent la limite LiveKit fixée à leur création ; créer un nouveau salon pour bénéficier des 50 places.
+
+## Mates Cinéma
+
+Ouvrir `/cinema` pour créer une séance par partage d’écran : foyer, aperçu local, contrôle du niveau audio et discussion après projection. Aucune nouvelle migration ni variable. Consulter [docs/CINEMA.md](docs/CINEMA.md).

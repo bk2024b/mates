@@ -51,9 +51,15 @@ export function RoomEntry({ roomId }: { roomId: string }) {
     <main id="main-content" className="entry-page">
       <SiteHeader />
       <section className="entry-card">
-        <span className="eyebrow">{ended ? 'À LA PROCHAINE' : 'POSE TES AFFAIRES'}</span>
+        <span className="eyebrow">
+          {ended
+            ? 'À LA PROCHAINE'
+            : room?.cinema
+              ? 'MATES CINÉMA · TON BILLET EST ICI'
+              : 'POSE TES AFFAIRES'}
+        </span>
         <div className="entry-art">
-          <span>✳</span>
+          <span>{room?.cinema ? '▶' : '✳'}</span>
           <span>☺</span>
           <span>✦</span>
         </div>
@@ -61,7 +67,10 @@ export function RoomEntry({ roomId }: { roomId: string }) {
         <p className="muted">
           {ended
             ? 'Tu as quitté le salon. Tu peux le rejoindre à nouveau.'
-            : 'Choisis ton pseudo avant de rejoindre la conversation.'}
+            : room?.cinema
+              ? room.cinema.description ||
+                'Entre avec ton pseudo. Tu rejoindras le foyer ou la projection en cours, sans retour en arrière.'
+              : 'Choisis ton pseudo avant de rejoindre la conversation.'}
         </p>
         {loading ? (
           <p className="loading-line">
@@ -99,7 +108,7 @@ export function RoomEntry({ roomId }: { roomId: string }) {
                     <LoaderCircle size={18} className="spin" />
                   ) : (
                     <>
-                      Entrer dans le salon
+                      {room?.cinema ? 'Entrer dans la salle' : 'Entrer dans le salon'}
                       <ArrowRight size={18} />
                     </>
                   )}

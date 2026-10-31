@@ -11,6 +11,13 @@ export function supabaseSettings() {
   return { url, key };
 }
 export function safeNext(value: string | null | undefined): string {
-  if (value === '/' || value === '/account' || value === '/account?reset=1') return value;
+  if (
+    value === '/' ||
+    value === '/cinema' ||
+    value === '/explore' ||
+    value === '/account' ||
+    value === '/account?reset=1'
+  )
+    return value;
   return value && /^\/room\/mates-[a-f0-9]{24}$/.test(value) ? value : '/';
 }

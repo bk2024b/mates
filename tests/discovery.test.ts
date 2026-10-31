@@ -31,7 +31,7 @@ test('la découverte exige un choix public explicite et ne révèle aucune ident
   assert.equal(result.length, 1);
   assert.deepEqual(
     Object.keys(result[0]).sort(),
-    ['id', 'title', 'participants', 'maxParticipants', 'createdAt', 'visibility'].sort(),
+    ['id', 'title', 'participants', 'maxParticipants', 'createdAt', 'visibility', 'kind'].sort(),
   );
   assert.ok(!JSON.stringify(result).includes('secret-host-id'));
 });

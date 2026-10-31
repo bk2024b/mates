@@ -9,6 +9,7 @@ import {
   type Participant,
   type RemoteAudioTrack,
   type LocalTrackPublication,
+  type LocalTrack,
   DisconnectReason,
 } from 'livekit-client';
 import {
@@ -35,8 +36,11 @@ import {
   Radio,
   MessageCircle,
   EyeOff,
+  Film,
+  AppWindow,
+  Sparkles,
 } from 'lucide-react';
-import type { JoinInfo, MediaProfile } from '@/lib/contracts';
+import type { JoinInfo, MediaProfile, ShareSource, CinemaInfo } from '@/lib/contracts';
 import { captureError, captureOptions, PROFILES, publishOptions, roomOptions } from '@/lib/media';
 import { Brand } from './brand';
 import { VideoView, AudioView, ScreenView } from './media-track';
@@ -47,6 +51,8 @@ import { ChatPanel } from './chat-panel';
 import { DeviceSettings } from './device-settings';
 import { REACTIONS } from '@/lib/chat';
 import { RoomControlsPanel } from './room-controls-panel';
+import { SharePreview } from './share-preview';
+import { cinemaSchema } from '@/lib/contracts';
 import { QualityPanel } from './quality-panel';
 function initial(name: string) {
   return name.trim().slice(0, 2).toUpperCase();
@@ -76,6 +82,67 @@ export function MeetingRoom({
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [profile, setProfile] = useState<MediaProfile>('motion');
+  const [source, setSource] = useState<ShareSource>('tab');
+  const [preview, setPreview] = useState<LocalTrack[] | null>(null);
+  const previewRef = useRef<LocalTrack[] | null>(null);
+  const [immersion, setImmersion] = useState(true);
+  const [showReactions, setShowReactions] = useState(true);
+  const [fallbackCinema, setFallbackCinema] = useState(session.room.cinema);
+  const cinema = !!session.room.cinema;
+  let cinemaInfo: CinemaInfo | undefined = fallbackCinema;
+  try {
+    const parsed = cinemaSchema.safeParse(JSON.parse(room.metadata || '{}').cinema);
+    if (parsed.success) cinemaInfo = parsed.data;
+  } catch {}
+  useEffect(
+    () => () => {
+      for (const t of previewRef.current || []) t.stop();
+    },
+    [],
+  );
+  function cancelPreview() {
+    for (const t of previewRef.current || []) t.stop();
+    previewRef.current = null;
+    setPreview(null);
+  }
+  async function setCinemaPhase(phase: 'foyer' | 'discussion') {
+    try {
+      const result = await api<{ cinema: CinemaInfo }>(`/api/rooms/${session.room.id}/cinema`, {
+        phase,
+      });
+      setFallbackCinema(result.cinema);
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : 'La séance n’a pas pu être actualisée.');
+    }
+  }
+  async function broadcastPreview() {
+    if (!previewRef.current || busy) return;
+    const tracks = previewRef.current;
+    setBusy(true);
+    setMessage('');
+    try {
+      if (tracks.some((t) => t.mediaStreamTrack.readyState === 'ended'))
+        throw new Error('La capture a été arrêtée. Choisis à nouveau ta source.');
+      if (session.controls) await control.startShare(profile, source, tracks);
+      else {
+        for (const track of tracks)
+          await room.localParticipant.publishTrack(track, publishOptions(profile));
+      }
+      previewRef.current = null;
+      setPreview(null);
+    } catch (e) {
+      for (const t of tracks) {
+        await room.localParticipant.unpublishTrack(t, true).catch(() => {});
+        t.stop();
+      }
+      previewRef.current = null;
+      setPreview(null);
+      setMessage(e instanceof Error ? e.message : 'La projection n’a pas pu démarrer.');
+    } finally {
+      setBusy(false);
+      setRevision((v) => v + 1);
+    }
+  }
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<'people' | 'quality' | 'chat'>(session.chat ? 'chat' : 'people');
   const [panelOpen, setPanelOpen] = useState(true);
@@ -113,6 +180,7 @@ export function MeetingRoom({
       if (!disposed) setRevision((v) => v + 1);
     };
     const events = [
+      RoomEvent.RoomMetadataChanged,
       RoomEvent.ParticipantConnected,
       RoomEvent.ParticipantDisconnected,
       RoomEvent.ActiveSpeakersChanged,
@@ -265,9 +333,19 @@ export function MeetingRoom({
         await local.setScreenShareEnabled(false);
         if (session.controls) await control.release();
       } else {
-        if (session.controls) await control.startShare(profile);
+        if (cinema) {
+          const tracks = await local.createScreenTracks(captureOptions(profile, source));
+          previewRef.current = tracks;
+          setPreview(tracks);
+          return;
+        }
+        if (session.controls) await control.startShare(profile, source);
         else
-          await local.setScreenShareEnabled(true, captureOptions(profile), publishOptions(profile));
+          await local.setScreenShareEnabled(
+            true,
+            captureOptions(profile, source),
+            publishOptions(profile),
+          );
         const audio = local.getTrackPublication(Track.Source.ScreenShareAudio);
         if (!audio)
           setMessage(
@@ -323,7 +401,18 @@ export function MeetingRoom({
         ? 'Déconnecté'
         : 'Connexion…';
   return (
-    <main id="main-content" className="meeting">
+    <main
+      id="main-content"
+      className={`meeting ${cinema ? 'cinema-meeting' : ''} ${cinema && immersion ? 'cinema-immersive' : ''}`}
+    >
+      {preview && (
+        <SharePreview
+          tracks={preview}
+          busy={busy}
+          onCancel={cancelPreview}
+          onStart={() => void broadcastPreview()}
+        />
+      )}
       <header className="meeting-header">
         <Brand />
         <div className="meeting-title">
@@ -341,6 +430,74 @@ export function MeetingRoom({
       </header>
       <div className="meeting-content">
         <section className="stage-column">
+          {cinema && (
+            <section className="cinema-room-banner">
+              <div>
+                <span className="eyebrow">
+                  <Film size={14} /> MATES CINÉMA
+                </span>
+                <strong>
+                  {screen
+                    ? 'La projection est en cours.'
+                    : cinemaInfo?.phase === 'discussion'
+                      ? 'Le générique est passé. On en parle ?'
+                      : 'Bienvenue dans le foyer.'}
+                </strong>
+                <p>
+                  {screen
+                    ? 'Tu regardes le direct avec toute la salle.'
+                    : cinemaInfo?.description ||
+                      'Installe-toi, retrouve les tiens et prépare le popcorn.'}
+                </p>
+              </div>
+              <div className="cinema-room-actions">
+                <button aria-pressed={immersion} onClick={() => setImmersion((v) => !v)}>
+                  <Sparkles size={15} />
+                  {immersion ? 'Afficher les caméras' : 'Masquer les caméras'}
+                </button>
+                <button aria-pressed={showReactions} onClick={() => setShowReactions((v) => !v)}>
+                  {showReactions ? 'Masquer les réactions' : 'Afficher les réactions'}
+                </button>
+                {session.role === 'host' && (
+                  <button
+                    disabled={!!screen}
+                    onClick={() =>
+                      void setCinemaPhase(
+                        cinemaInfo?.phase === 'discussion' ? 'foyer' : 'discussion',
+                      )
+                    }
+                  >
+                    {cinemaInfo?.phase === 'discussion'
+                      ? 'Retour au foyer'
+                      : 'Passer à la discussion'}
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
+          {control.eligible && (
+            <div className="capture-source-picker" role="group" aria-label="Source du partage">
+              <button
+                aria-pressed={source === 'tab'}
+                disabled={local.isScreenShareEnabled || busy}
+                onClick={() => setSource('tab')}
+              >
+                <MonitorUp size={16} /> Onglet vidéo
+              </button>
+              <button
+                aria-pressed={source === 'application'}
+                disabled={local.isScreenShareEnabled || busy}
+                onClick={() => setSource('application')}
+              >
+                <AppWindow size={16} /> Application / écran
+              </button>
+              <p>
+                {source === 'tab'
+                  ? 'Dans le sélecteur, choisis ton onglet et active son audio.'
+                  : 'Choisis la fenêtre de ton lecteur ou ton écran. Le partage du son dépend du navigateur et du système.'}
+              </p>
+            </div>
+          )}
           <div className="stage-top">
             <span className="eyebrow">
               <Radio size={14} />
@@ -352,7 +509,7 @@ export function MeetingRoom({
             </span>
           </div>
           <div className="stage" ref={stageRef}>
-            {session.chat && (
+            {session.chat && (!cinema || showReactions) && (
               <div className="floating-reactions" aria-live="off">
                 {chat.reactions.map((r) => (
                   <span key={r.id} style={{ left: `${12 + (r.id.charCodeAt(0) % 70)}%` }}>
@@ -391,11 +548,19 @@ export function MeetingRoom({
                   <b className="orbit-star">✦</b>
                 </div>
                 <h2>
-                  {control.eligible ? 'Une scène pour ta passion.' : 'Le moment va commencer.'}
+                  {cinema
+                    ? cinemaInfo?.phase === 'discussion'
+                      ? 'Place à vos impressions.'
+                      : 'Le rideau s’ouvre bientôt.'
+                    : control.eligible
+                      ? 'Une scène pour ta passion.'
+                      : 'Le moment va commencer.'}
                 </h2>
                 <p>
                   {control.eligible
-                    ? 'Une vidéo, un projet, une idée. Partage ton écran pour lancer le moment.'
+                    ? cinema
+                      ? 'Choisis ta source ci-dessus. Un aperçu permettra de vérifier la capture avant de diffuser.'
+                      : 'Une vidéo, un projet, une idée. Partage ton écran pour lancer le moment.'
                     : 'Installe-toi. L’hôte peut partager son écran à tout moment.'}
                 </p>
                 {control.eligible && (
@@ -410,7 +575,7 @@ export function MeetingRoom({
                     }
                   >
                     {busy ? <LoaderCircle size={18} className="spin" /> : <MonitorUp size={18} />}
-                    Partager mon écran
+                    {cinema ? 'Préparer la projection' : 'Partager mon écran'}
                   </button>
                 )}
                 <span className="stage-hint">
@@ -528,7 +693,11 @@ export function MeetingRoom({
                   <MonitorUp size={18} />
                 )}
                 <span>
-                  {local.isScreenShareEnabled ? 'Arrêter le partage' : 'Partager l’écran'}
+                  {local.isScreenShareEnabled
+                    ? 'Arrêter le partage'
+                    : cinema
+                      ? 'Préparer la projection'
+                      : 'Partager l’écran'}
                 </span>
               </button>
             ) : (

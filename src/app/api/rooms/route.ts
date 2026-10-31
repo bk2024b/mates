@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
       version: 1,
       title: input.title,
       visibility: input.visibility,
+      ...(input.kind === 'cinema'
+        ? { cinema: { phase: 'foyer' as const, description: input.description } }
+        : {}),
       hostIdentity: identity.id,
       createdAt: new Date().toISOString(),
       identityMode: identity.mode,

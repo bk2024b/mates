@@ -22,6 +22,13 @@ export function SiteHeader() {
           Explorer <ArrowUpRight size={14} />
         </Link>
         <Link
+          href="/cinema"
+          aria-current={path === '/cinema' ? 'page' : undefined}
+          onClick={() => setOpen(false)}
+        >
+          Cinéma
+        </Link>
+        <Link
           href="/account"
           aria-current={path === '/account' ? 'page' : undefined}
           onClick={() => setOpen(false)}

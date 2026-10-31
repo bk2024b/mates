@@ -5,7 +5,7 @@ import {
   type RoomOptions,
   VideoPresets,
 } from 'livekit-client';
-import type { MediaProfile } from './contracts';
+import type { MediaProfile, ShareSource } from './contracts';
 export const PROFILES = {
   motion: {
     label: 'Vidéo fluide',
@@ -22,7 +22,10 @@ export const PROFILES = {
     description: '1080p · cible 15 images/s',
   },
 } as const;
-export function captureOptions(profile: MediaProfile): ScreenShareCaptureOptions {
+export function captureOptions(
+  profile: MediaProfile,
+  source: ShareSource = 'tab',
+): ScreenShareCaptureOptions {
   return {
     audio: {
       echoCancellation: false,
@@ -30,7 +33,7 @@ export function captureOptions(profile: MediaProfile): ScreenShareCaptureOptions
       autoGainControl: false,
       channelCount: 2,
     },
-    video: { displaySurface: 'browser' },
+    video: { displaySurface: source === 'application' ? 'window' : 'browser' },
     resolution: { width: 1920, height: 1080, frameRate: PROFILES[profile].fps },
     contentHint: PROFILES[profile].hint,
     selfBrowserSurface: 'exclude',
