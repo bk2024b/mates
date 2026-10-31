@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './product.css';
+export const viewport: Viewport = { themeColor: '#f7f5ee', viewportFit: 'cover' };
 export const metadata: Metadata = {
   title: { default: 'Mates — Les mêmes passions. Le même moment.', template: '%s · Mates' },
   description:
-    'Un salon, un sujet, des gens à rencontrer. Prototype de partage d’écran haute qualité de Mates.',
+    'Trouve ta tribu autour de tes passions. Salons en direct, partage d’écran, chat et rencontres, avec un simple pseudo.',
   robots: { index: false, follow: false },
   icons: { icon: '/icon.svg' },
 };

@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowLeft, ArrowRight, Check, LoaderCircle, LogOut, ShieldCheck } from 'lucide-react';
-import { Brand } from './brand';
+import { ArrowRight, Check, LoaderCircle, LogOut, ShieldCheck } from 'lucide-react';
+import { SiteHeader } from './site-header';
 import { api } from '@/lib/api';
 import { safeNext } from '@/lib/identity-mode';
 export type AccountSession = {
@@ -11,6 +11,7 @@ export type AccountSession = {
 };
 export function Account() {
   const [session, setSession] = useState<AccountSession | null>(null);
+  const [checking, setChecking] = useState(true);
   const [mode, setMode] = useState<'login' | 'signup' | 'recover' | 'password'>('login');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
@@ -31,11 +32,13 @@ export function Account() {
         'Le lien a expiré ou a été ouvert dans un autre navigateur. Reconnecte-toi ou demande un nouveau lien.',
       );
     setNickname(sessionStorage.getItem('mates:nickname') || '');
-    void refresh().catch(() =>
-      setError(
-        'La session n’a pas pu être vérifiée. Vérifie la configuration Supabase puis recharge la page.',
-      ),
-    );
+    void refresh()
+      .catch(() =>
+        setError(
+          'Impossible de retrouver ta session. Recharge la page ou réessaie dans un instant.',
+        ),
+      )
+      .finally(() => setChecking(false));
   }, []);
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -76,13 +79,8 @@ export function Account() {
     }
   }
   return (
-    <main className="entry-page">
-      <header className="site-header wrap">
-        <Brand />
-        <Link href="/" className="text-link">
-          <ArrowLeft size={16} /> Retour aux salons
-        </Link>
-      </header>
+    <main id="main-content" className="entry-page">
+      <SiteHeader />
       <section className="entry-card">
         <span className="eyebrow">TON ESPACE MATES</span>
         <div className="entry-art">
@@ -102,7 +100,15 @@ export function Account() {
         <p className="muted">
           Ton email reste privé. Les autres participants voient uniquement ton pseudo.
         </p>
-        {session?.mode === 'prototype' ? (
+        {checking ? (
+          <p className="loading-line" role="status">
+            <LoaderCircle className="spin" size={18} /> Un instant, on retrouve ton espace…
+          </p>
+        ) : !session ? (
+          <button className="button secondary full" onClick={() => window.location.reload()}>
+            Réessayer
+          </button>
+        ) : session.mode === 'prototype' ? (
           <p className="notice">
             Les comptes seront disponibles lorsque l’intégration Supabase sera activée. Tu peux
             continuer à utiliser les salons actuels.
@@ -135,6 +141,7 @@ export function Account() {
             {(mode === 'login' || mode === 'signup') && (
               <div className="launcher-tabs">
                 <button
+                  aria-pressed={mode === 'login'}
                   onClick={() => {
                     setMode('login');
                     setMessage('');
@@ -144,6 +151,7 @@ export function Account() {
                   Connexion
                 </button>
                 <button
+                  aria-pressed={mode === 'signup'}
                   onClick={() => {
                     setMode('signup');
                     setMessage('');

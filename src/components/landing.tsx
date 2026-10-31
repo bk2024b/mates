@@ -11,10 +11,11 @@ import {
   Check,
   LoaderCircle,
   ChevronRight,
-  Radio,
   Terminal,
 } from 'lucide-react';
 import { Brand } from './brand';
+import { SiteHeader } from './site-header';
+import { PassionArt } from './passion-art';
 import { api } from '@/lib/api';
 import type { AccountSession } from './account';
 import type { HealthInfo } from '@/lib/contracts';
@@ -70,32 +71,20 @@ export function Landing() {
     }
   }
   return (
-    <main className="landing">
-      <header className="site-header wrap">
-        <Brand />
-        <nav>
-          <Link href="/explore">Explorer les salons</Link>
-          <a href="#comment">Comment ça marche</a>
-          {account?.mode === 'supabase' && <Link href="/account">Mon compte</Link>}
-          <Link href="/lab">
-            Le labo <ArrowUpRight size={14} />
-          </Link>
-        </nav>
-        <span className="version-pill">
-          <span /> Bêta 0.5
-        </span>
-      </header>
+    <main id="main-content" className="landing">
+      <SiteHeader />
       <section className="hero wrap">
         <div className="hero-copy">
           <div className="eyebrow">
-            <span className="mini-orbit" /> LESS SCROLL. MORE CONNECTION.
+            <span className="mini-orbit" /> MOINS DE SCROLL. PLUS DE VRAIS MOMENTS.
           </div>
           <h1>
-            Les mêmes passions.
+            Ton truc.
             <br />
-            Le même{' '}
+            Ta tribu.
+            <br />
             <span>
-              moment
+              Votre moment
               <svg viewBox="0 0 280 18" aria-hidden="true">
                 <path
                   d="M3 12Q115-3 275 8"
@@ -109,10 +98,12 @@ export function Landing() {
             .
           </h1>
           <p className="hero-description">
-            Un sujet qui te parle. Des gens à découvrir.
-            <br />
-            Partage ton écran, lance la discussion, fais comme chez toi.
+            Des inconnus, un point commun, et la conversation démarre. Trouve un salon ou crée le
+            tien. Viens comme tu es.
           </p>
+          <Link href="/explore" className="hero-explore">
+            Trouver mon prochain salon <ArrowUpRight size={20} />
+          </Link>
           <div className="hero-benefits">
             <span>
               <MonitorUp size={16} /> Le contenu au premier plan
@@ -121,23 +112,11 @@ export function Landing() {
               <ShieldCheck size={16} /> Ton pseudo suffit
             </span>
           </div>
-          <div className="social-note">
-            <div className="avatar-stack">
-              <span>✳</span>
-              <span>☺</span>
-              <span>✦</span>
-            </div>
-            <p>
-              De nouvelles têtes.
-              <br />
-              <strong>Un terrain commun.</strong>
-            </p>
-            <span className="sketch-arrow">↗</span>
-          </div>
+          <PassionArt />
         </div>
-        <div className="room-launcher">
+        <div className="room-launcher" id="start">
           <div className="launcher-top">
-            <span className="live-dot" /> LE PROCHAIN MOMENT COMMENCE ICI <Sparkles size={17} />
+            <span className="live-dot" /> ON SE RETROUVE ICI <Sparkles size={17} />
           </div>
           <div className="launcher-tabs" role="tablist" aria-label="Accès au salon">
             <button
@@ -264,11 +243,17 @@ export function Landing() {
           Impossible de vérifier le serveur. Recharge la page avant de créer un salon.
         </p>
       )}
+      <div className="passion-ribbon" aria-label="Toutes les passions ont leur place">
+        <span>
+          ANIMÉS <b>✳</b> TECH <b>✳</b> MUSIQUE <b>✳</b> CRÉATION <b>✳</b> GAMING <b>✳</b> LES IDÉES
+          DE 2H DU MATIN <b>✳</b>
+        </span>
+      </div>
       <section className="how wrap" id="comment">
         <div className="section-heading">
           <span className="eyebrow">PAS DE CÉRÉMONIE</span>
           <h2>Trois gestes. Et vous y êtes.</h2>
-          <p>Un petit salon, une grande conversation.</p>
+          <p>Pas besoin de se connaître pour avoir quelque chose à partager.</p>
         </div>
         <div className="feature-grid">
           <article>
@@ -297,18 +282,20 @@ export function Landing() {
           </article>
         </div>
       </section>
-      <section className="lab-strip wrap">
+      <section className="product-cta wrap">
+        <span className="cta-star" aria-hidden="true">
+          ✳
+        </span>
         <div>
-          <span className="eyebrow">
-            <Radio size={14} /> CONSTRUIT POUR LE DIRECT
-          </span>
-          <h2>Le partage mérite une belle image.</h2>
-          <p>
-            Deux profils de diffusion, adaptation réseau et mesures réelles. La qualité se vérifie.
-          </p>
+          <span className="eyebrow">LE BON MOMENT, C’EST MAINTENANT</span>
+          <h2>
+            Ta prochaine rencontre
+            <br />
+            commence par un sujet.
+          </h2>
         </div>
-        <Link href="/lab" className="button secondary">
-          Ouvrir le labo vidéo <ArrowUpRight size={17} />
+        <Link href="/explore" className="button primary">
+          Explorer les salons <ArrowUpRight size={18} />
         </Link>
       </section>
       <footer className="site-footer wrap">

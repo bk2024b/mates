@@ -1,16 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
-import {
-  ArrowLeft,
-  ArrowRight,
-  LoaderCircle,
-  MicOff,
-  VideoOff,
-  ShieldCheck,
-  Users,
-} from 'lucide-react';
-import { Brand } from './brand';
+import { ArrowRight, LoaderCircle, MicOff, VideoOff, ShieldCheck, Users } from 'lucide-react';
+import { SiteHeader } from './site-header';
 import { api } from '@/lib/api';
 import type { JoinInfo, RoomInfo } from '@/lib/contracts';
 import { MeetingRoom } from './meeting-room';
@@ -56,13 +48,8 @@ export function RoomEntry({ roomId }: { roomId: string }) {
       />
     );
   return (
-    <main className="entry-page">
-      <header className="site-header wrap">
-        <Brand />
-        <Link href="/" className="text-link">
-          <ArrowLeft size={16} /> Retour à l’accueil
-        </Link>
-      </header>
+    <main id="main-content" className="entry-page">
+      <SiteHeader />
       <section className="entry-card">
         <span className="eyebrow">{ended ? 'À LA PROCHAINE' : 'POSE TES AFFAIRES'}</span>
         <div className="entry-art">
@@ -125,6 +112,11 @@ export function RoomEntry({ roomId }: { roomId: string }) {
           <p className="error" role="alert">
             {error}
           </p>
+        )}
+        {!loading && !room && (
+          <Link className="button primary full" href="/explore">
+            Trouver un autre salon <ArrowRight size={18} />
+          </Link>
         )}
         <p className="privacy-note">
           <ShieldCheck size={15} /> Ton pseudo est public. Ton identité réelle n’est pas demandée.

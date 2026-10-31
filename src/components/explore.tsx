@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ArrowRight, RefreshCw, Search, Users, Radio, Plus, LoaderCircle } from 'lucide-react';
 import { Brand } from './brand';
+import { SiteHeader } from './site-header';
 import { api } from '@/lib/api';
 import type { RoomInfo } from '@/lib/contracts';
 export function Explore() {
@@ -53,17 +54,8 @@ export function Explore() {
       (!available || r.maxParticipants === 0 || r.participants < r.maxParticipants),
   );
   return (
-    <main className="explore-page">
-      <header className="site-header wrap">
-        <Brand />
-        <nav>
-          <Link href="/">Accueil</Link>
-          <Link href="/account">Mon compte</Link>
-        </nav>
-        <Link className="button secondary" href="/">
-          Créer un salon <Plus size={16} />
-        </Link>
-      </header>
+    <main id="main-content" className="explore-page">
+      <SiteHeader />
       <section className="explore-hero wrap">
         <span className="eyebrow">
           <Radio size={15} /> LES CONVERSATIONS SONT DÉJÀ LÀ

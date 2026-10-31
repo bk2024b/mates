@@ -77,7 +77,25 @@ export function MeetingRoom({
   const [profile, setProfile] = useState<MediaProfile>('motion');
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<'people' | 'quality' | 'chat'>(session.chat ? 'chat' : 'people');
-  const chat = useRoomChat(session, room, tab === 'chat');
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 900px)');
+    const update = () => setCompact(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  const chat = useRoomChat(session, room, tab === 'chat' && (!compact || panelOpen));
+  useEffect(() => {
+    if (!panelOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPanelOpen(false);
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, [panelOpen]);
+
   const [audioAllowed, setAudioAllowed] = useState(true);
   const [voiceVolume, setVoiceVolume] = useState(80);
   const [contentVolume, setContentVolume] = useState(100);
@@ -304,7 +322,7 @@ export function MeetingRoom({
         ? 'Déconnecté'
         : 'Connexion…';
   return (
-    <main className="meeting">
+    <main id="main-content" className="meeting">
       <header className="meeting-header">
         <Brand />
         <div className="meeting-title">
@@ -312,7 +330,7 @@ export function MeetingRoom({
           <span>
             <span className={`status-dot ${connected ? 'online' : ''}`} />
             {status}
-            <i /> Salon de test · {participants.length}/12
+            <i /> {participants.length}/{session.room.maxParticipants || '∞'} mates
           </span>
         </div>
         <button className="button invite" onClick={copy}>
@@ -328,7 +346,8 @@ export function MeetingRoom({
               {screen ? 'LE MOMENT PARTAGÉ' : 'LA SCÈNE EST À VOUS'}
             </span>
             <span className="stage-private">
-              <Shield size={13} /> Accès par lien
+              <Shield size={13} />{' '}
+              {session.room.visibility === 'public' ? 'Salon public' : 'Accès par lien'}
             </span>
           </div>
           <div className="stage" ref={stageRef}>
@@ -516,6 +535,18 @@ export function MeetingRoom({
                 <Headphones size={17} /> Tu es dans le public
               </span>
             )}
+            <button
+              className={`control-button panel-toggle ${panelOpen ? 'active' : ''}`}
+              aria-label={
+                panelOpen ? 'Fermer le panneau du salon' : 'Ouvrir le chat et les participants'
+              }
+              aria-expanded={panelOpen}
+              aria-controls="room-panel"
+              onClick={() => setPanelOpen((v) => !v)}
+            >
+              <MessageCircle size={20} />
+              {chat.unread > 0 && <b className="unread-dot">{chat.unread}</b>}
+            </button>
             <button className="leave-button" onClick={() => void leave()}>
               <PhoneOff size={19} />
               <span>Quitter</span>
@@ -534,7 +565,21 @@ export function MeetingRoom({
             </button>
           )}
         </section>
-        <aside className="room-sidebar">
+        <aside
+          className={`room-sidebar ${panelOpen ? 'panel-open' : ''}`}
+          id="room-panel"
+          aria-label="Conversation et réglages"
+        >
+          <div className="mobile-panel-heading">
+            <strong>Le salon, côté coulisses.</strong>
+            <button
+              className="icon-button"
+              aria-label="Fermer le panneau"
+              onClick={() => setPanelOpen(false)}
+            >
+              <X size={20} />
+            </button>
+          </div>
           <div className="sidebar-tabs">
             {session.chat && (
               <button className={tab === 'chat' ? 'selected' : ''} onClick={() => setTab('chat')}>
@@ -609,11 +654,11 @@ export function MeetingRoom({
                 </span>
                 <h3>Le début de quelque chose.</h3>
                 <p>
-                  Pour l’instant, place à la voix et au partage. Le chat et les réactions arriveront
-                  à l’étape 6.
+                  Un pseudo, une passion, des gens à découvrir. Prends la parole à ton rythme et
+                  fais comme chez toi.
                 </p>
                 <Link href="/lab" target="_blank" rel="noopener noreferrer">
-                  Ouvrir la mire vidéo <ArrowUpRight size={14} />
+                  Vérifier mon partage <ArrowUpRight size={14} />
                 </Link>
               </div>
             </>
@@ -680,7 +725,7 @@ export function MeetingRoom({
             </>
           )}
           <div className="sidebar-bottom">
-            <span className="tiny-badge">PROTOTYPE 0.3</span>
+            <span className="tiny-badge">LE MOMENT EST À VOUS</span>
             <p>
               Pas d’enregistrement par Mates.
               <br />

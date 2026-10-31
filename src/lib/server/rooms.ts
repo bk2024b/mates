@@ -46,6 +46,7 @@ export function publicRoom(room: Room): RoomInfo {
     participants: room.numParticipants,
     maxParticipants: room.maxParticipants,
     createdAt: m.createdAt,
+    visibility: m.visibility || 'link',
   };
 }
 export async function findRoom(id: string) {

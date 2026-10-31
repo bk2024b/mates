@@ -18,6 +18,7 @@ export type RoomInfo = {
   participants: number;
   maxParticipants: number;
   createdAt: string;
+  visibility?: 'public' | 'link';
 };
 export type JoinInfo = {
   token: string;
