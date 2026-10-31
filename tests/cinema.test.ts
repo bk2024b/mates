@@ -26,3 +26,50 @@ test('les paramètres cinéma sont bornés et les anciennes salles restent valid
     }),
   );
 });
+
+test('le passage paysage demande le plein écran avant la rotation et gère le refus', async () => {
+  const { requestCinemaLandscape } = await import('../src/lib/cinema-view');
+  const calls: string[] = [];
+  const doc = { fullscreenElement: null as Element | null };
+  assert.equal(
+    await requestCinemaLandscape(
+      {
+        requestFullscreen: async () => {
+          calls.push('fullscreen');
+          doc.fullscreenElement = {} as Element;
+        },
+      },
+      doc,
+      {
+        lock: async (value) => {
+          calls.push(value);
+        },
+      },
+    ),
+    'locked',
+  );
+  assert.deepEqual(calls, ['fullscreen', 'landscape']);
+  assert.equal(
+    await requestCinemaLandscape(
+      {
+        requestFullscreen: async () => {
+          throw new Error('unavailable');
+        },
+      },
+      { fullscreenElement: null },
+      {
+        lock: async () => {
+          throw new Error('not supported');
+        },
+      },
+    ),
+    'manual',
+  );
+  assert.equal(await requestCinemaLandscape({}, { fullscreenElement: null }, {}), 'manual');
+});
+test('la présence prête exige une valeur booléenne vérifiée dans les métadonnées', async () => {
+  const { cinemaReady } = await import('../src/lib/cinema-view');
+  assert.equal(cinemaReady('{"cinemaReady":true}'), true);
+  assert.equal(cinemaReady('{"cinemaReady":"true"}'), false);
+  assert.equal(cinemaReady('invalid'), false);
+});

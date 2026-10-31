@@ -124,6 +124,14 @@ test('cinéma : création privée et ambiance modifiable seulement par l’hôte
       return current;
     },
   );
+  const ready = mock.method(
+    RoomServiceClient.prototype,
+    'updateParticipant',
+    async (_room: string, identity: string, options: { metadata: string }) => ({
+      identity,
+      metadata: options.metadata,
+    }),
+  );
   try {
     const made = await createRoom(
       request('/api/rooms', {
@@ -155,6 +163,33 @@ test('cinéma : création privée et ambiance modifiable seulement par l’hôte
       params,
     );
     assert.equal(outsider.status, 403);
+    const spectatorSession = newSession();
+    const checkedIn = await changePhase(
+      request(
+        '/api/rooms/' + id + '/cinema',
+        { ready: true },
+        'mates_session=' + signSession(spectatorSession),
+      ),
+      params,
+    );
+    assert.equal(checkedIn.status, 200);
+    assert.equal(ready.mock.calls[0].arguments[1], spectatorSession.id);
+    const readyOptions = ready.mock.calls[0].arguments[2];
+    assert.ok(readyOptions && typeof readyOptions === 'object');
+    assert.deepEqual(JSON.parse(readyOptions.metadata), {
+      app: 'mates',
+      role: 'guest',
+      cinemaReady: true,
+    });
+    const forged = await changePhase(
+      request(
+        '/api/rooms/' + id + '/cinema',
+        { ready: true, target: meta.hostIdentity },
+        'mates_session=' + signSession(spectatorSession),
+      ),
+      params,
+    );
+    assert.equal(forged.status, 400);
     assert.equal(update.mock.callCount(), 0);
     const changed = await changePhase(
       request('/api/rooms/' + id + '/cinema', { phase: 'discussion' }, cookie),
@@ -184,5 +219,6 @@ test('cinéma : création privée et ambiance modifiable seulement par l’hôte
     list.mock.restore();
     participant.mock.restore();
     update.mock.restore();
+    ready.mock.restore();
   }
 });

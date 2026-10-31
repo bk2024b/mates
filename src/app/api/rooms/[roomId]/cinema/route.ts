@@ -10,7 +10,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
   try {
     validateMutation(req);
     const roomId = roomIdSchema.parse((await params).roomId);
-    const input = z.object({ phase: z.enum(['foyer', 'discussion']) }).parse(await readJson(req));
+    const input = z
+      .union([
+        z.object({ phase: z.enum(['foyer', 'discussion']) }).strict(),
+        z.object({ ready: z.boolean() }).strict(),
+      ])
+      .parse(await readJson(req));
     const room = await findRoom(roomId),
       meta = metadata(room);
     if (!meta.cinema)
@@ -22,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
       if (!auth.error) actor = auth.data.user?.id;
     } else actor = readSession(req.cookies.get(COOKIE_NAME)?.value)?.id;
     if (!actor) throw new ApiError(401, 'UNAUTHORIZED', 'Reconnecte-toi pour continuer.');
-    if (actor !== meta.hostIdentity)
+    if ('phase' in input && actor !== meta.hostIdentity)
       throw new ApiError(
         403,
         'CINEMA_HOST_ONLY',
@@ -30,6 +35,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ roo
       );
     rateLimit('cinema:' + actor, 30);
     await roomService().getParticipant(roomId, actor);
+    if ('ready' in input) {
+      await roomService().updateParticipant(roomId, actor, {
+        metadata: JSON.stringify({
+          app: 'mates',
+          role: actor === meta.hostIdentity ? 'host' : 'guest',
+          cinemaReady: input.ready,
+        }),
+      });
+      return NextResponse.json(
+        { ready: input.ready },
+        { headers: { 'Cache-Control': 'no-store' } },
+      );
+    }
     const updated = await roomService().updateRoomMetadata(
       roomId,
       JSON.stringify({ ...meta, cinema: { ...meta.cinema, phase: input.phase } }),

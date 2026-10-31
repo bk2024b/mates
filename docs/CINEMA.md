@@ -2,7 +2,7 @@
 
 ## Activation
 
-Redéployer la version 0.7 puis ouvrir `/cinema`. Aucune nouvelle variable ou migration. Conserver les migrations et variables déjà activées pour les comptes, le chat, les commandes et la capacité de 50 personnes.
+Redéployer la version 0.8 puis ouvrir `/cinema`. Aucune nouvelle variable ou migration. Conserver les migrations et variables déjà activées pour les comptes, le chat, les commandes et la capacité de 50 personnes.
 
 ## Parcours
 
@@ -14,7 +14,7 @@ En cinéma, la capture reste locale avant diffusion. Le dialogue d’aperçu mon
 
 Les invités reçoivent uniquement le flux en cours. Aucun fichier n’est importé et aucune commande de pause ou de déplacement dans le film n’est fournie aux spectateurs. L’organisateur garde les commandes de son lecteur : pause ou déplacement dans celui-ci affecte toute la projection. La synchronisation dépend du transport WebRTC et du réseau ; aucune synchronisation parfaite à la milliseconde n’est promise.
 
-Les micros et caméras sont coupés à l’arrivée comme dans les autres salons. Le cinéma masque initialement la bande de caméras, avec un bouton pour la réafficher localement. Les réactions peuvent être masquées localement. Le chat reste visible par défaut sur mobile et peut être masqué avec son icône. La discussion vocale n’est pas bloquée : chaque participant peut activer son micro.
+Les micros et caméras sont coupés à l’arrivée comme dans les autres salons. La vue « Dans la salle » affiche des fauteuils correspondant aux participants réellement connectés ; la vue immersion les réduit à une ligne de présences. Les caméras restent masquées dans l’espace cinéma. Les réactions peuvent être masquées localement. Le chat reste visible par défaut sur mobile et peut être masqué avec son icône. La discussion vocale n’est pas bloquée : chaque participant peut activer son micro.
 
 Le statut « projection en cours » est déduit de la présence d’une piste écran. L’hôte peut passer du foyer à la discussion et revenir au foyer avec `/api/rooms/:id/cinema` ; le serveur vérifie son identité, sa présence et l’origine de la requête avant de modifier uniquement les informations cinéma dans les métadonnées LiveKit. Les événements de métadonnées actualisent les autres clients. Un présentateur désigné peut diffuser mais ne peut pas modifier cette ambiance.
 
@@ -29,3 +29,15 @@ Le lecteur source et le débit montant de l’organisateur déterminent la quali
 Tester sur deux profils/appareils : création privée, invitation, arrivée dans le foyer, aperçu local sans diffusion chez l’invité, annulation avec arrêt de l’indicateur de capture, puis diffusion avec audio et confirmation du spectateur. Essayer ensuite le lecteur d’une application (image et son à vérifier séparément), le partage par un présentateur désigné, l’arrivée en cours de film, la discussion après arrêt du partage et le retour au foyer. Vérifier le chat et l’écran en portrait, puis la projection en paysage sur téléphone.
 
 Les tests automatisés valident la création, les métadonnées, les préférences de capture et le refus des changements d’ambiance sans identité d’hôte. Le transport média et les sélecteurs système doivent être vérifiés sur les appareils réels.
+
+## Salle vivante et mobile — 0.8
+
+Le foyer affiche un billet au titre de la séance et le pseudo du participant. Chaque personne connectée peut choisir « Je suis prêt » ; l’API vérifie son identité et sa présence, puis modifie uniquement ses propres métadonnées de participant. Aucun identifiant cible n’est accepté. Le rôle est recalculé côté serveur et les permissions média ne sont pas modifiées. Le compteur est indicatif et ne bloque pas le lancement par l’hôte. La disponibilité est réinitialisée à la reconnexion, sans persistance en base.
+
+Les fauteuils portent les pseudos et initiales des personnes présentes, avec un halo pour la parole et les réactions au-dessus de leur place. Le tri est partagé par identité et rôle, sans réservation permanente de fauteuil. Les places peuvent se réordonner avec les arrivées/départs. Au-delà de la rangée compacte, « Voir toute la salle » affiche les autres participants. Cliquer sur une place affiche ses informations et le blocage personnel existant. Le mode immersion conserve une ligne de présences. Aucune réaction sonore artificielle n’est ajoutée.
+
+Le début d’un partage baisse les lumières et affiche un court message masquable. L’arrêt du partage remonte l’ambiance lumineuse. Les préférences de réduction des animations sont respectées.
+
+Sur téléphone tactile en portrait, pendant une projection, une suggestion masquable est affichée sur le lecteur. Le bouton demande le plein écran, puis tente `screen.orientation.lock('landscape')`. Si l’API manque ou est refusée, un message demande de tourner le téléphone et d’autoriser la rotation système. Aucune page web ne peut garantir ou imposer cette rotation sur tous les navigateurs. L’orientation verrouillée par Mates est libérée à la sortie du plein écran, à la fin du partage ou en quittant la salle. Une ligne de présences reste visible en plein écran. Le chat reste visible par défaut en portrait, et peut être masqué par son icône.
+
+Recette complémentaire : deux participants prêts/non prêts, réception du compteur, réactions depuis plusieurs places, halo de parole, blocage et vue immersion. Sur Android/iPhone, tester la suggestion en portrait, le clic vers le paysage, le retour au portrait, l’option « Masquer » et le message de rotation manuelle lorsque l’API est refusée. Les tests automatiques du parcours d’orientation utilisent des API simulées ; ils ne remplacent pas un essai matériel.

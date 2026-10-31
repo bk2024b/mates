@@ -2,7 +2,7 @@
 
 **Les mêmes passions. Le même moment.**
 
-Version 0.7 — diffusion WebRTC, comptes Supabase, commandes du salon, chat, réactions et découverte des salons. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.8 — diffusion WebRTC, comptes Supabase, commandes du salon, chat, réactions et découverte des salons. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
@@ -146,3 +146,7 @@ En mode Supabase, appliquer `supabase/migrations/202610310002_room_capacity.sql`
 ## Mates Cinéma
 
 Ouvrir `/cinema` pour créer une séance par partage d’écran : foyer, aperçu local, contrôle du niveau audio et discussion après projection. Aucune nouvelle migration ni variable. Consulter [docs/CINEMA.md](docs/CINEMA.md).
+
+## Salle cinéma vivante 0.8
+
+Fauteuils des participants connectés, réactions attachées aux places, billet du foyer et bouton « Je suis prêt ». Une suggestion mobile propose le paysage via plein écran et verrouillage d’orientation lorsqu’ils sont autorisés, avec consigne de rotation manuelle sinon. Aucune nouvelle migration ni variable.

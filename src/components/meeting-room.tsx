@@ -51,6 +51,9 @@ import { ChatPanel } from './chat-panel';
 import { DeviceSettings } from './device-settings';
 import { REACTIONS } from '@/lib/chat';
 import { RoomControlsPanel } from './room-controls-panel';
+import { CinemaAudience } from './cinema-audience';
+import { CinemaLandscape } from './cinema-landscape';
+import { CinemaLobby } from './cinema-lobby';
 import { SharePreview } from './share-preview';
 import { cinemaSchema } from '@/lib/contracts';
 import { QualityPanel } from './quality-panel';
@@ -85,8 +88,9 @@ export function MeetingRoom({
   const [source, setSource] = useState<ShareSource>('tab');
   const [preview, setPreview] = useState<LocalTrack[] | null>(null);
   const previewRef = useRef<LocalTrack[] | null>(null);
-  const [immersion, setImmersion] = useState(true);
+  const [immersion, setImmersion] = useState(false);
   const [showReactions, setShowReactions] = useState(true);
+  const [startCue, setStartCue] = useState(false);
   const [fallbackCinema, setFallbackCinema] = useState(session.room.cinema);
   const cinema = !!session.room.cinema;
   let cinemaInfo: CinemaInfo | undefined = fallbackCinema;
@@ -305,6 +309,16 @@ export function MeetingRoom({
   const sharer = participants.find((p) => p.isScreenShareEnabled && !chat.blocked.has(p.identity));
   const screen = sharer?.getTrackPublication(Track.Source.ScreenShare)?.track;
   const localShare = sharer === room.localParticipant;
+  const projecting = !!screen;
+  useEffect(() => {
+    if (!cinema || !projecting) {
+      setStartCue(false);
+      return;
+    }
+    setStartCue(true);
+    const timer = setTimeout(() => setStartCue(false), 3200);
+    return () => clearTimeout(timer);
+  }, [cinema, projecting]);
   const local = room.localParticipant;
   const sharedAudio = sharer?.getTrackPublication(Track.Source.ScreenShareAudio);
   const connected = state === ConnectionState.Connected;
@@ -403,7 +417,7 @@ export function MeetingRoom({
   return (
     <main
       id="main-content"
-      className={`meeting ${cinema ? 'cinema-meeting' : ''} ${cinema && immersion ? 'cinema-immersive' : ''}`}
+      className={`meeting ${cinema ? 'cinema-meeting' : ''} ${cinema && immersion ? 'cinema-immersive' : ''} ${cinema && projecting ? 'cinema-projecting' : ''}`}
     >
       {preview && (
         <SharePreview
@@ -453,7 +467,7 @@ export function MeetingRoom({
               <div className="cinema-room-actions">
                 <button aria-pressed={immersion} onClick={() => setImmersion((v) => !v)}>
                   <Sparkles size={15} />
-                  {immersion ? 'Afficher les caméras' : 'Masquer les caméras'}
+                  {immersion ? 'Dans la salle' : 'Vue immersion'}
                 </button>
                 <button aria-pressed={showReactions} onClick={() => setShowReactions((v) => !v)}>
                   {showReactions ? 'Masquer les réactions' : 'Afficher les réactions'}
@@ -474,6 +488,15 @@ export function MeetingRoom({
                 )}
               </div>
             </section>
+          )}
+          {cinema && !screen && cinemaInfo?.phase !== 'discussion' && (
+            <CinemaLobby
+              roomId={session.room.id}
+              title={session.room.title}
+              people={participants}
+              local={local}
+              connected={connected}
+            />
           )}
           {control.eligible && (
             <div className="capture-source-picker" role="group" aria-label="Source du partage">
@@ -509,7 +532,35 @@ export function MeetingRoom({
             </span>
           </div>
           <div className="stage" ref={stageRef}>
-            {session.chat && (!cinema || showReactions) && (
+            {cinema && <CinemaLandscape active={projecting} target={stageRef} />}
+            {cinema && (
+              <div className="cinema-fullscreen-presence">
+                <CinemaAudience
+                  people={participants}
+                  reactions={showReactions ? chat.reactions : []}
+                  blocked={chat.blocked}
+                  immersion
+                  onExpand={() => {
+                    setImmersion(false);
+                    void document.exitFullscreen().catch(() => {});
+                  }}
+                  onPeople={() => {}}
+                />
+              </div>
+            )}
+            {cinema && startCue && (
+              <div className="cinema-start-cue" role="status">
+                <span>Les lumières baissent.</span>
+                <strong>Bonne séance.</strong>
+                <button
+                  onClick={() => setStartCue(false)}
+                  aria-label="Masquer le message de début de séance"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {session.chat && !cinema && (
               <div className="floating-reactions" aria-live="off">
                 {chat.reactions.map((r) => (
                   <span key={r.id} style={{ left: `${12 + (r.id.charCodeAt(0) % 70)}%` }}>
@@ -542,16 +593,14 @@ export function MeetingRoom({
                 <div className="empty-orbits">
                   <span />
                   <span />
-                  <div>
-                    <MonitorUp size={38} />
-                  </div>
+                  <div>{cinema ? <Film size={38} /> : <MonitorUp size={38} />}</div>
                   <b className="orbit-star">✦</b>
                 </div>
                 <h2>
                   {cinema
                     ? cinemaInfo?.phase === 'discussion'
                       ? 'Place à vos impressions.'
-                      : 'Le rideau s’ouvre bientôt.'
+                      : session.room.title
                     : control.eligible
                       ? 'Une scène pour ta passion.'
                       : 'Le moment va commencer.'}
@@ -611,6 +660,20 @@ export function MeetingRoom({
             <p className="source-audio-note">
               <VolumeX size={14} /> Aucun audio de partage détecté. Le micro reste indépendant.
             </p>
+          )}
+          {cinema && (
+            <CinemaAudience
+              people={participants}
+              reactions={showReactions ? chat.reactions : []}
+              blocked={chat.blocked}
+              immersion={immersion}
+              onExpand={() => setImmersion(false)}
+              onPeople={() => {
+                setTab('people');
+                setPanelOpen(true);
+              }}
+              onBlock={session.chat ? (id) => void chat.toggleBlock(id) : undefined}
+            />
           )}
           <div className="participants-strip">
             {participants.map((p) => {
