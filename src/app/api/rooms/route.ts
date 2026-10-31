@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomBytes } from 'node:crypto';
+import { ROOM_CAPACITY } from '@/lib/limits';
 import { createRoomSchema } from '@/lib/contracts';
 import { ApiError, failure, readJson, rateLimit, validateMutation } from '@/lib/server/http';
 import { resolveIdentity, applyIdentityCookie, persistRoom, enroll } from '@/lib/server/identity';
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
       }
       await roomService().createRoom({
         name: id,
-        maxParticipants: 12,
+        maxParticipants: ROOM_CAPACITY,
         emptyTimeout: 600,
         departureTimeout: 120,
         metadata: JSON.stringify(meta),

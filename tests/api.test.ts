@@ -47,6 +47,7 @@ test('parcours API créer puis rejoindre comme hôte et comme invité avec fourn
     assert.equal(made.status, 201);
     const { id } = await made.json();
     assert.match(id, /^mates-[a-f0-9]{24}$/);
+    assert.equal(rooms.get(id)!.maxParticipants, 50);
     const cookie = made.headers.get('set-cookie')!.split(';')[0];
     assert.match(made.headers.get('set-cookie')!, /HttpOnly/);
     assert.match(made.headers.get('set-cookie')!, /SameSite=strict/i);
@@ -65,7 +66,12 @@ test('parcours API créer puis rejoindre comme hôte et comme invité avec fourn
     });
     assert.equal(found.status, 200);
     assert.equal((await found.json()).title, 'Les robots de demain');
-    rooms.get(id)!.numParticipants = 12;
+    rooms.get(id)!.numParticipants = 49;
+    const lastSeat = await joinRoom(request(`/api/rooms/${id}/join`, { name: 'Dernier mate' }), {
+      params: Promise.resolve({ roomId: id }),
+    });
+    assert.equal(lastSeat.status, 200);
+    rooms.get(id)!.numParticipants = 50;
     const full = await joinRoom(request(`/api/rooms/${id}/join`, { name: 'Mate' }), {
       params: Promise.resolve({ roomId: id }),
     });

@@ -1,3 +1,4 @@
+import { ROOM_CAPACITY } from '../limits';
 import { NextRequest, NextResponse } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { identityMode, type IdentityMode } from '../identity-mode';
@@ -97,7 +98,9 @@ export function applyIdentityCookie(
 }
 export async function persistRoom(identity: RequestIdentity, id: string, title: string) {
   if (!identity.client) return;
-  const { error } = await identity.client.from('rooms').insert({ id, host_id: identity.id, title });
+  const { error } = await identity.client
+    .from('rooms')
+    .insert({ id, host_id: identity.id, title, capacity: ROOM_CAPACITY });
   if (error)
     throw new ApiError(
       503,

@@ -53,7 +53,7 @@ Pour tester depuis deux appareils, utiliser une URL **HTTPS** accessible aux deu
 - Accueil Mates responsive, création et accès par lien, préentrée sous pseudo.
 - API serveur de création de salon et génération de jetons LiveKit.
 - Sessions signées dans un cookie HttpOnly ; seul le créateur obtient les sources écran et audio de partage.
-- Salon de 12 participants maximum côté serveur média, voix et caméra facultatives.
+- Salon de 50 participants maximum côté serveur média, voix et caméra facultatives.
 - Partage d’écran, fenêtre ou onglet, avec audio **si le navigateur et la source l’autorisent**.
 - Profils 1080p30 / 6 Mbit/s et 1080p15 / 3 Mbit/s **cibles**, VP8, simulcast avec couche 720p15, adaptation et dynacast.
 - Audio partagé sans traitement de voix demandé à la capture, encodage stéréo ciblé à 128 kbit/s, piste séparée du micro.
@@ -138,3 +138,7 @@ La page `/explore` liste les salons explicitement publics et occupés, avec rech
 ## Interface produit 0.6
 
 Identité visuelle commune, navigation mobile, formulaires adaptés au tactile et panneau de conversation mobile. Aucune nouvelle variable ni migration. Voir [docs/INTERFACE.md](docs/INTERFACE.md).
+
+## Capacité de 50 participants
+
+En mode Supabase, appliquer `supabase/migrations/202610310002_room_capacity.sql` après les trois migrations précédentes, puis redéployer. Les nouveaux salons accueillent 50 participants, hôte compris. Les salons existants gardent la limite LiveKit fixée à leur création ; créer un nouveau salon pour bénéficier des 50 places.

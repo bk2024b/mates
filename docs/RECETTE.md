@@ -65,7 +65,7 @@ Ouvrir Qualité avant la séquence, puis laisser ce panneau ouvert pendant la me
 - Modifier le pseudo en « Hôte » n’accorde pas le partage.
 - Tester la publication écran depuis un client invité modifié : LiveKit doit refuser la source.
 - Ouvrir deux onglets d’un même profil : vérifier le message lié à l’identité dupliquée.
-- Dépasser 12 connexions simultanées : vérifier refus serveur média et message exploitable.
+- Dépasser 50 connexions simultanées : vérifier refus serveur média et message exploitable.
 - Tester refus des permissions, absence de caméra, source vidéo protégée, absence d’audio, expiration d’un salon et retour après perte réseau.
 - Vérifier qu’une requête cross-origin reçoit 403 et qu’aucun secret ne figure dans le HTML, les jetons exposés dans l’URL ou les logs.
 
