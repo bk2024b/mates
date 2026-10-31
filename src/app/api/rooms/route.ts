@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       app: 'mates',
       version: 1,
       title: input.title,
+      visibility: input.visibility,
       hostIdentity: identity.id,
       createdAt: new Date().toISOString(),
       identityMode: identity.mode,

@@ -8,6 +8,7 @@ export type RoomMetadata = {
   identityMode?: 'prototype' | 'supabase';
   controls?: boolean;
   chat?: boolean;
+  visibility?: 'public' | 'link';
   title: string;
   hostIdentity: string;
   createdAt: string;
@@ -24,6 +25,7 @@ export function metadata(room: Pick<Room, 'metadata'>): RoomMetadata {
       m.version === 1 &&
       typeof m.title === 'string' &&
       typeof m.hostIdentity === 'string' &&
+      (m.visibility === undefined || m.visibility === 'public' || m.visibility === 'link') &&
       (m.chat === undefined || typeof m.chat === 'boolean') &&
       (m.controls === undefined || typeof m.controls === 'boolean') &&
       (m.identityMode === undefined ||

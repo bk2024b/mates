@@ -8,6 +8,7 @@ export const nicknameSchema = z
 export const createRoomSchema = z.object({
   name: nicknameSchema,
   title: z.string().trim().min(3).max(80),
+  visibility: z.enum(['public', 'link']).default('link'),
 });
 export const joinRoomSchema = z.object({ name: nicknameSchema });
 export const roomIdSchema = z.string().regex(/^mates-[a-f0-9]{24}$/);

@@ -2,7 +2,7 @@
 
 **Les mêmes passions. Le même moment.**
 
-Version 0.4 — diffusion WebRTC, comptes Supabase, commandes du salon, chat et réactions, activables après configuration. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
+Version 0.5 — diffusion WebRTC, comptes Supabase, commandes du salon, chat, réactions et découverte des salons. Le média utilise un vrai serveur LiveKit ; aucune connexion ou statistique n’est simulée dans le produit.
 
 ## Démarrage rapide
 
@@ -130,3 +130,7 @@ Dépendances exactes dans `package.json` et `package-lock.json`. Utiliser `npm c
 ## Chat et réactions
 
 Voir [docs/CHAT.md](docs/CHAT.md) pour appliquer la migration et activer `MATES_CHAT`. Inclut historique, blocage personnel et sélection des périphériques dans l’onglet Qualité.
+
+## Découverte des salons
+
+La page `/explore` liste les salons explicitement publics et occupés, avec recherche par sujet et filtre de places disponibles. À la création, le choix par défaut reste « uniquement par lien » ; les anciens salons restent non listés. Aucune migration ni variable supplémentaire. Voir [docs/DECOUVERTE.md](docs/DECOUVERTE.md).

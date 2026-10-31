@@ -23,6 +23,7 @@ export function Landing() {
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
+  const [visibility, setVisibility] = useState<'public' | 'link'>('link');
   const [link, setLink] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -50,7 +51,7 @@ export function Landing() {
           window.location.assign('/account');
           return;
         }
-        const data = await api<{ id: string }>('/api/rooms', { name, title });
+        const data = await api<{ id: string }>('/api/rooms', { name, title, visibility });
         sessionStorage.setItem('mates:nickname', name);
         window.location.assign(`/room/${data.id}`);
       } else {
@@ -73,6 +74,7 @@ export function Landing() {
       <header className="site-header wrap">
         <Brand />
         <nav>
+          <Link href="/explore">Explorer les salons</Link>
           <a href="#comment">Comment ça marche</a>
           {account?.mode === 'supabase' && <Link href="/account">Mon compte</Link>}
           <Link href="/lab">
@@ -80,7 +82,7 @@ export function Landing() {
           </Link>
         </nav>
         <span className="version-pill">
-          <span /> Prototype 0.3
+          <span /> Bêta 0.5
         </span>
       </header>
       <section className="hero wrap">
@@ -189,6 +191,21 @@ export function Landing() {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
+                <label htmlFor="visibility">Qui peut découvrir le salon ?</label>
+                <select
+                  id="visibility"
+                  className="visibility-select"
+                  value={visibility}
+                  onChange={(e) => setVisibility(e.target.value as 'public' | 'link')}
+                >
+                  <option value="link">Uniquement les personnes avec le lien</option>
+                  <option value="public">Tout le monde, dans Explorer</option>
+                </select>
+                <p className="visibility-hint">
+                  {visibility === 'public'
+                    ? 'Le sujet et le nombre de participants seront visibles dans Explorer dès que tu seras connecté au salon.'
+                    : 'Le salon ne sera pas listé. Toute personne qui possède son lien pourra le rejoindre.'}
+                </p>
               </>
             ) : (
               <>
@@ -297,7 +314,7 @@ export function Landing() {
       <footer className="site-footer wrap">
         <Brand />
         <span>Les mêmes passions. Le même moment.</span>
-        <span>Étape 4 · Salons et présentateurs</span>
+        <span>Des passions, des salons, des rencontres</span>
       </footer>
     </main>
   );

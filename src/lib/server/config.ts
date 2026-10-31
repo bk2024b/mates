@@ -41,7 +41,7 @@ export function configuration() {
     (mode !== 'supabase' || !process.env.SUPABASE_SECRET_KEY?.trim())
   )
     missing.push('SUPABASE_SECRET_KEY et mode supabase requis pour le chat');
-  return { configured: missing.length === 0, missing, version: '0.4.0', identityMode: mode };
+  return { configured: missing.length === 0, missing, version: '0.5.0', identityMode: mode };
 }
 export function livekitConfig() {
   if (!configuration().configured) throw new Error('MATES_NOT_CONFIGURED');
