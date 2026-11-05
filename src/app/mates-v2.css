@@ -42,41 +42,18 @@ body {
   align-items: center;
 }
 .brand svg.brand-mark {
-  width: 34px;
-  height: 28px;
+  width: 38px;
+  height: auto;
   transform: none;
-  color: inherit;
-}
-.brand svg.brand-mark rect {
-  display: none;
-}
-.brand svg.brand-mark circle,
-.brand svg.brand-mark path {
-  stroke: none;
+  flex: none;
 }
 .brand svg.brand-mark .mk-w {
   fill: #f5f7ff;
+  stroke: none;
 }
 .brand svg.brand-mark .mk-l {
   fill: var(--lime);
-}
-.brand svg.brand-mark path {
-  fill: none;
-  stroke-width: 8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.brand svg.brand-mark path.mk-w {
-  stroke: #f5f7ff;
-}
-.brand svg.brand-mark path.mk-l {
-  stroke: var(--lime);
-}
-.mates-auth-brand .brand svg.brand-mark path.mk-w {
-  stroke: #f5f7ff;
-}
-.mates-auth-brand .brand svg.brand-mark path.mk-l {
-  stroke: var(--lime);
+  stroke: none;
 }
 /* ---------- Navigation ---------- */
 .site-header.product-header {
@@ -582,5 +559,281 @@ body {
   .primary,
   .button {
     transition: none !important;
+  }
+}
+
+/* ---------- Page de connexion / inscription ---------- */
+.mates-auth-content {
+  width: min(100%, 400px);
+  padding-block: 28px;
+}
+.mates-auth-logo {
+  display: block;
+  width: 74px;
+  height: auto;
+  margin: 0 auto 18px;
+}
+.mates-auth-logo .mk-w {
+  fill: #f5f7ff;
+  stroke: none;
+}
+.mates-auth-logo .mk-l {
+  fill: var(--lime);
+  stroke: none;
+}
+.mates-auth-brand .brand svg.brand-mark path {
+  stroke: none;
+}
+.mates-auth-brand .brand svg.brand-mark .mk-w {
+  fill: #f5f7ff;
+}
+.mates-auth-brand .brand svg.brand-mark .mk-l {
+  fill: var(--lime);
+}
+.mates-auth-brand .brand svg.brand-mark {
+  width: 38px;
+  height: auto;
+}
+.mates-auth-content .mates-auth-email-panel {
+  margin-top: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.mates-auth-email-panel .launcher-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 18px;
+}
+.mates-auth-email-panel .launcher-tabs button {
+  min-height: 42px;
+  font-weight: 700;
+}
+.mates-auth-email-form {
+  gap: 6px;
+}
+.mates-auth-email-form input {
+  min-height: 50px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.mates-auth-email-form input:focus {
+  border-color: var(--lime);
+  box-shadow: 0 0 0 3px #a3ff1220;
+  outline: none;
+}
+.mates-auth-email-form .button {
+  margin-top: 14px;
+  min-height: 54px;
+}
+.mates-auth-content .account-logout {
+  display: block;
+  margin: 14px auto 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 13px;
+}
+.mates-auth-content .account-logout:hover {
+  color: #fff;
+}
+.mates-auth-guest {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+.mates-auth-guest .mates-auth-secondary {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid #3a3a42;
+}
+.mates-auth-mascot {
+  width: min(88%, 560px);
+  max-height: 92%;
+}
+.mates-auth-primary,
+.mates-auth-secondary {
+  border-radius: 999px;
+}
+/* ---------- Page cinéma (palette sombre cohérente) ---------- */
+.cinema-page {
+  background: var(--bg);
+  color: #fff;
+}
+.cinema-page .product-header {
+  border-color: var(--line);
+}
+.cinema-page .brand {
+  color: #fff;
+}
+.cinema-page .nav-create {
+  background: var(--lime);
+  color: #0c1204;
+}
+.cinema-page .cinema-copy h1 {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+.cinema-page .cinema-copy > p {
+  color: var(--muted);
+}
+.cinema-page .cinema-create {
+  color: #fff;
+}
+.cinema-page .cinema-create h2 {
+  color: #fff;
+  font-weight: 800;
+}
+.cinema-page .cinema-create > p,
+.cinema-page .cinema-form-hint,
+.cinema-page .cinema-create > small {
+  color: var(--muted);
+}
+.cinema-page .cinema-form-top {
+  color: var(--muted);
+  border-color: var(--line);
+}
+.cinema-page .cinema-create label {
+  color: #e4e4e7;
+}
+.cinema-page .cinema-create label > span {
+  color: var(--muted);
+}
+.cinema-page .cinema-create input,
+.cinema-page .cinema-create select,
+.cinema-page .cinema-create textarea {
+  background: var(--bg);
+  color: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+}
+.cinema-page .cinema-create input::placeholder,
+.cinema-page .cinema-create textarea::placeholder {
+  color: #71717a;
+}
+.cinema-page .cinema-ticket strong {
+  color: #fff;
+}
+.cinema-page .cinema-promises > span,
+.cinema-page .cinema-fineprint {
+  color: var(--muted);
+}
+.cinema-page .cinema-how h3,
+.cinema-page .cinema-section-title h2,
+.cinema-page .cinema-empty h3,
+.cinema-page .cinema-session-card h3 {
+  color: #fff;
+}
+.cinema-page .cinema-how p,
+.cinema-page .cinema-empty p,
+.cinema-page .cinema-session-card p {
+  color: var(--muted);
+}
+.cinema-page .cinema-how article > span {
+  color: var(--lime);
+}
+.cinema-page .cinema-section-title > a,
+.cinema-page .text-link {
+  color: var(--lime);
+}
+/* ---------- États vides / erreurs lisibles ---------- */
+.explore-empty {
+  background: var(--surface-2);
+  border: 1px dashed #3a3a42;
+  border-radius: var(--r-card);
+  color: #fff;
+}
+.explore-empty h2 {
+  color: #fff;
+}
+.explore-empty p {
+  color: var(--muted);
+}
+.explore-summary {
+  color: #e4e4e7;
+}
+
+/* ---------- Corrections de spécificité (champs, onglets, densité) ---------- */
+.mates-auth-page .mates-auth-email-form input:not([type='range']):not([type='checkbox']) {
+  background: var(--bg);
+  color: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  min-height: 50px;
+}
+.mates-auth-page .mates-auth-email-form input:focus {
+  border-color: var(--lime);
+}
+.cinema-page
+  .cinema-create
+  :is(input, select, textarea):not([type='range']):not([type='checkbox']) {
+  background: var(--bg);
+  color: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+}
+.launcher-tabs button[aria-pressed='true'] {
+  background: var(--lime);
+  color: #0c1204;
+  font-weight: 800;
+  box-shadow: none;
+}
+.launcher-tabs button {
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.mates-auth-content {
+  padding-block: 12px;
+}
+.mates-auth-logo {
+  width: 56px;
+  margin-bottom: 12px;
+}
+.mates-auth-content h1 {
+  font-size: clamp(32px, 3vw, 42px);
+}
+.mates-auth-content .mates-auth-email-panel {
+  margin-top: 18px;
+}
+.mates-auth-divider {
+  margin: 18px 0 12px;
+}
+.mates-auth-guest {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.mates-auth-guest a {
+  color: #d4d4d8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mates-auth-guest a:hover {
+  color: var(--lime);
+}
+
+@media (max-width: 700px) {
+  .site-header.product-header nav {
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    height: auto;
+    max-height: none;
+    inset: auto 0 0 0;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    margin: 0;
+  }
+  .site-header.product-header nav a {
+    white-space: nowrap;
+    width: auto;
   }
 }
