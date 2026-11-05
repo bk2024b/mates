@@ -827,8 +827,8 @@ input::placeholder, textarea::placeholder { color: #74838b; }
   .mates-auth-content h1 { font-size: 39px; }
   .mates-auth-visual {
     order: 2;
-    min-height: 430px;
-    display: none;
+    min-height: 360px;
+    display: grid;
   }
   .mates-auth-mascot { width: 92%; max-height: 400px; }
   .mates-auth-visual-caption { bottom: 14px; }
