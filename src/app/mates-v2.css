@@ -1,0 +1,586 @@
+/* Mates v2 — refonte visuelle d'après les moodboards « Neon Social App ».
+   Couche de présentation uniquement : chargée après mates-neon.css, elle ne modifie
+   aucune logique (API, session, LiveKit, Supabase, état React, permissions). */
+:root {
+  --bg: #0f0f10;
+  --surface: #141417;
+  --surface-2: #1e1e22;
+  --line: #2a2a30;
+  --ink: #ffffff;
+  --muted: #a1a1aa;
+  --lime: #a3ff12;
+  --lime-hi: #b8ff4a;
+  --violet: #7c5cff;
+  --danger: #ef4444;
+  --r-card: 18px;
+  --r-ctl: 14px;
+}
+html,
+body {
+  background: var(--bg);
+}
+body {
+  font-family:
+    Inter,
+    'Satoshi',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  background:
+    radial-gradient(ellipse at 85% -10%, #1b1540 0, transparent 38rem),
+    radial-gradient(ellipse at 0% 0%, #141a14 0, transparent 30rem), var(--bg);
+  letter-spacing: -0.012em;
+}
+/* ---------- Marque ---------- */
+.brand {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  gap: 10px;
+  align-items: center;
+}
+.brand svg.brand-mark {
+  width: 34px;
+  height: 28px;
+  transform: none;
+  color: inherit;
+}
+.brand svg.brand-mark rect {
+  display: none;
+}
+.brand svg.brand-mark circle,
+.brand svg.brand-mark path {
+  stroke: none;
+}
+.brand svg.brand-mark .mk-w {
+  fill: #f5f7ff;
+}
+.brand svg.brand-mark .mk-l {
+  fill: var(--lime);
+}
+.brand svg.brand-mark path {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.brand svg.brand-mark path.mk-w {
+  stroke: #f5f7ff;
+}
+.brand svg.brand-mark path.mk-l {
+  stroke: var(--lime);
+}
+.mates-auth-brand .brand svg.brand-mark path.mk-w {
+  stroke: #f5f7ff;
+}
+.mates-auth-brand .brand svg.brand-mark path.mk-l {
+  stroke: var(--lime);
+}
+/* ---------- Navigation ---------- */
+.site-header.product-header {
+  height: 68px;
+  margin-top: 14px;
+  border-radius: var(--r-card);
+  background: #0f0f10e6;
+  border-color: var(--line);
+  box-shadow: none;
+}
+.product-header nav {
+  font-weight: 600;
+  color: var(--muted);
+}
+.product-header nav a[aria-current='page'] {
+  color: #fff;
+}
+.product-header nav a[aria-current='page']::after {
+  box-shadow: none;
+  bottom: -6px;
+}
+.product-header .nav-create {
+  border-radius: 999px;
+  padding: 10px 18px;
+  box-shadow: none;
+}
+/* ---------- Boutons ---------- */
+.button {
+  border-radius: 999px;
+  min-height: 48px;
+  font-weight: 700;
+}
+.primary,
+.room-launcher .primary,
+.entry-card .primary,
+.hero-explore {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #0c1204;
+  box-shadow: none;
+  border-radius: 999px;
+}
+.primary:hover:not(:disabled),
+.hero-explore:hover {
+  background: var(--lime-hi);
+  box-shadow: 0 0 0 4px #a3ff1222;
+}
+.secondary {
+  background: transparent;
+  border: 1px solid #3a3a42;
+  color: #fff;
+}
+.secondary:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: #55555f;
+}
+/* ---------- Accueil ---------- */
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 1.02;
+}
+.hero-description {
+  color: var(--muted);
+}
+.passion-art {
+  border-radius: var(--r-card);
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at 70% 20%, #2a1d63 0, transparent 55%), var(--surface);
+}
+.room-launcher,
+.entry-card,
+.cinema-create,
+.explore-directory {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 24px 70px #0007;
+}
+.room-launcher input:not([type='checkbox']),
+.entry-card input:not([type='checkbox']),
+.visibility-select,
+.cinema-create input,
+.cinema-create select,
+.cinema-create textarea {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-ctl);
+  color: #fff;
+}
+.room-launcher input:focus,
+.entry-card input:focus,
+.cinema-create input:focus,
+.cinema-create textarea:focus,
+.cinema-create select:focus {
+  border-color: var(--lime);
+  outline: none;
+  box-shadow: 0 0 0 3px #a3ff1220;
+}
+.launcher-tabs {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px;
+}
+.launcher-tabs button {
+  border-radius: 999px;
+}
+.feature-grid article,
+.cinema-how article,
+.cinema-session-card,
+.cinema-empty {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: none;
+}
+.feature-grid article:hover {
+  border-color: #a3ff1260;
+}
+.product-cta {
+  background: radial-gradient(ellipse at 85% 10%, #2f2170, transparent 50%), var(--surface);
+  border-color: var(--line);
+}
+.pill {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #e4e4e7;
+}
+/* ---------- Explorer ---------- */
+.explore-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: none;
+}
+.explore-card:hover {
+  border-color: #a3ff1280;
+  box-shadow: 0 14px 40px #0008;
+}
+.explore-card .button {
+  padding-inline: 18px;
+  min-height: 38px;
+  font-size: 13px;
+}
+.explore-search {
+  background: var(--bg);
+  border-color: var(--line);
+  border-radius: 999px;
+  padding-inline: 14px;
+}
+/* ---------- Salon en direct ---------- */
+.meeting {
+  background: var(--bg);
+}
+.meeting-header {
+  height: 68px;
+  background: #0f0f10f2;
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.meeting .invite {
+  background: var(--lime);
+  border: 0;
+  color: #0c1204;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.meeting .invite:hover {
+  background: var(--lime-hi);
+}
+.meeting-content {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+}
+.stage {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: 0 24px 60px #000a;
+}
+.stage-private,
+.cinema-room-banner {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+}
+.participants-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  scrollbar-width: thin;
+}
+.meeting .participant-tile {
+  flex: 0 0 104px;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-ctl);
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+.meeting .participant-tile.speaking {
+  border-color: var(--lime);
+  box-shadow: 0 0 18px #a3ff1233;
+}
+.tile-avatar {
+  background: #20301a;
+  color: var(--lime);
+  font-weight: 800;
+}
+.reaction-bar {
+  justify-content: center;
+}
+.reaction-bar button {
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.room-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 14px;
+  box-shadow: none;
+}
+.control-button {
+  width: 46px;
+  height: 46px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: #fff;
+}
+.control-button:hover:not(:disabled) {
+  border-color: #55555f;
+}
+.control-button.active {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #0c1204;
+}
+.share-button {
+  border-radius: 999px;
+  background: var(--lime);
+  color: #0c1204;
+  font-weight: 700;
+  padding-inline: 18px;
+  min-height: 46px;
+}
+.share-button.sharing {
+  background: #1f3a10;
+  color: var(--lime);
+  border: 1px solid #4d7a22;
+}
+.leave-button {
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-weight: 700;
+  min-height: 46px;
+  padding-inline: 18px;
+}
+.leave-button:hover {
+  background: #f05252;
+}
+.toolbar-divider {
+  background: var(--line);
+}
+.audience-label {
+  color: var(--muted);
+}
+.room-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+}
+.sidebar-tabs > button.selected {
+  color: var(--lime);
+}
+.chat-message.own p {
+  color: #ecffd0;
+}
+.chat-composer {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.chat-composer button {
+  border-radius: 999px;
+}
+.person-avatar {
+  background: #20301a;
+}
+.metrics > div,
+.sidebar-intro,
+.chat-hello {
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+/* ---------- Espace cinéma — « Cinema Mode » ---------- */
+.cinema-meeting {
+  background: #0b0b10;
+}
+.cinema-meeting .meeting-header {
+  background: #0b0b10f2;
+  border-color: #26263a;
+}
+.cinema-meeting .stage {
+  position: relative;
+  border: 1px solid #34345a;
+  border-radius: 20px;
+  box-shadow:
+    0 30px 90px #000c,
+    0 0 80px #7c5cff1a;
+}
+.cinema-meeting:not(.cinema-immersive) .stage::before,
+.cinema-meeting:not(.cinema-immersive) .stage::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  z-index: 3;
+  pointer-events: none;
+  border: 3px solid var(--lime);
+  opacity: 0.9;
+}
+.cinema-meeting .stage::before {
+  top: 14px;
+  left: 14px;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 8px;
+}
+.cinema-meeting .stage::after {
+  bottom: 14px;
+  right: 14px;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 8px;
+}
+.cinema-meeting .cinema-room-banner {
+  background: linear-gradient(120deg, #15152a, #101018);
+  border-color: #34345a;
+}
+.cinema-meeting .cinema-room-actions button {
+  border-radius: 999px;
+}
+.cinema-meeting .cinema-room-actions button[aria-pressed='true'] {
+  background: var(--lime);
+  color: #0c1204;
+  border-color: var(--lime);
+}
+.cinema-meeting .room-sidebar {
+  background: #101018;
+  border-color: #26263a;
+}
+.cinema-meeting .cinema-audience {
+  background: linear-gradient(#14141f, #0c0c14);
+  border: 1px solid #2c2c48;
+  border-radius: var(--r-card);
+}
+.cinema-meeting .cinema-lobby-ticket {
+  background: linear-gradient(115deg, #17172b, #0f0f18);
+  border: 1px solid #3a3a60;
+  border-radius: var(--r-card);
+}
+.cinema-meeting .cinema-lobby-ticket > button {
+  border-radius: 999px;
+  background: var(--lime);
+  color: #0c1204;
+  font-weight: 700;
+}
+.cinema-meeting .cinema-lobby-ticket > button.is-ready {
+  background: #1f3a10;
+  color: var(--lime);
+  border: 1px solid #4d7a22;
+}
+.cinema-meeting .seat-back {
+  background: #22223a;
+  border-color: #4a4a78;
+}
+.cinema-meeting .cinema-seat.your-seat .seat-back {
+  background: #1f3a10;
+  border-color: var(--lime);
+  box-shadow: 0 0 16px #a3ff1233;
+}
+.cinema-meeting .cinema-start-cue {
+  background: #11111cf0;
+  border: 1px solid #7c5cff80;
+  border-radius: var(--r-card);
+}
+.cinema-page .cinema-copy h1 em {
+  color: var(--lime);
+  font-style: normal;
+}
+.cinema-ticket {
+  background: var(--surface);
+  border: 1px dashed #3a3a60;
+  border-radius: var(--r-card);
+}
+.cinema-session-card > svg {
+  color: var(--lime);
+}
+/* ---------- Aperçu de partage ---------- */
+.share-preview {
+  background: var(--surface);
+  border-color: var(--line);
+  border-radius: 22px;
+}
+.preview-screen {
+  border-radius: var(--r-card);
+}
+/* ---------- Mobile : navigation basse façon app ---------- */
+@media (max-width: 700px) {
+  body:has(.product-header) {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+  .site-header.product-header {
+    backdrop-filter: none;
+    height: 60px;
+  }
+  .site-header.product-header .menu-toggle {
+    display: none;
+  }
+  .site-header.product-header nav {
+    display: flex !important;
+    position: fixed;
+    z-index: 60;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: auto;
+    justify-content: space-around;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    background: #0f0f10f5;
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: 0 -12px 30px #0008;
+    backdrop-filter: blur(14px);
+  }
+  .site-header.product-header nav a {
+    flex: 1;
+    text-align: center;
+    font-size: 11.5px;
+    padding: 8px 2px;
+    justify-content: center;
+  }
+  .site-header.product-header nav a svg {
+    width: 14px;
+    height: 14px;
+  }
+  .site-header.product-header nav .nav-create {
+    flex: 0 0 auto;
+    padding: 11px 16px;
+    font-size: 12px;
+    box-shadow:
+      0 0 0 4px #0f0f10,
+      0 8px 22px #a3ff1230;
+  }
+  .site-header.product-header nav a[aria-current='page']::after {
+    bottom: 0;
+  }
+  .meeting-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .room-toolbar {
+    border-radius: 22px;
+    gap: 8px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+  .control-button {
+    width: 42px;
+    height: 42px;
+  }
+  .meeting .participant-tile {
+    flex-basis: 84px;
+  }
+  .room-sidebar {
+    border-radius: var(--r-card);
+  }
+}
+@media (max-width: 900px) and (min-width: 701px) {
+  .meeting-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .explore-card,
+  .primary,
+  .button {
+    transition: none !important;
+  }
+}
