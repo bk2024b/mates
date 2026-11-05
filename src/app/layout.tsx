@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import './product.css';
-export const viewport: Viewport = { themeColor: '#f7f5ee', viewportFit: 'cover' };
+import './mates-neon.css';
+export const viewport: Viewport = { themeColor: '#05090d', viewportFit: 'cover' };
 export const metadata: Metadata = {
   title: { default: 'Mates — Les mêmes passions. Le même moment.', template: '%s · Mates' },
   description:
