@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { identityMode } from '@/lib/identity-mode';
+import { identityMode, safeNext } from '@/lib/identity-mode';
 import { supabaseServer } from '@/lib/supabase/server';
 import { canCreate } from '@/lib/server/identity';
 import { ApiError, failure, rateLimit, readJson, validateMutation } from '@/lib/server/http';
@@ -61,11 +61,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
     validateMutation(req);
     enabled();
     const { action } = await params;
-    if (!['login', 'signup', 'logout', 'recover', 'password'].includes(action))
+    if (!['login', 'signup', 'logout', 'recover', 'password', 'google'].includes(action))
       throw new ApiError(404, 'NOT_FOUND', 'Route introuvable.');
     rateLimit(`auth:${action}:global`, 30);
     const body = await readJson(req);
     const client = await supabaseServer();
+    if (action === 'google') {
+      const input = z.object({ next: z.string().optional() }).parse(body);
+      const callback = new URL('/auth/callback', process.env.APP_ORIGIN || req.nextUrl.origin);
+      callback.searchParams.set('next', safeNext(input.next));
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: callback.toString() },
+      });
+      if (error || !data.url)
+        throw new ApiError(
+          503,
+          'GOOGLE_AUTH_UNAVAILABLE',
+          'La connexion Google n’est pas disponible. Vérifie que le fournisseur Google est activé dans Supabase.',
+        );
+      return json({ url: data.url });
+    }
     if (action === 'login') {
       const input = credentials.parse(body);
       const { error } = await client.auth.signInWithPassword(input);
