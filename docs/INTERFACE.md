@@ -48,3 +48,14 @@ npm run build
 ```
 
 Puis vérifier sur ordinateur et téléphone : accueil, création et accès par lien, exploration/actualisation, connexion à deux participants, micro/caméra, partage écran avec audio, chat, réactions, réglages, sortie, et parcours cinéma. Les tests automatisés couvrent la logique existante ; ils ne remplacent pas les essais média réels sur navigateur et appareils.
+
+
+## Écran de connexion — Mates Welcome
+
+La route `/account` utilise une composition split-screen inspirée de la référence MATES :
+- panneau gauche de bienvenue avec marque, actions « Create a Room » et « Join a Room », connexion Google et accès invité ;
+- panneau droit illustré par la mascotte Mates sur un décor bleu nuit/violet et accent vert néon ;
+- connexion email, inscription, récupération et changement de mot de passe conservés dans un panneau secondaire extensible ;
+- adaptation mobile avec mascotte conservée sous le formulaire.
+
+Les actions de salon réutilisent les parcours existants (`/#start` et `/explore`). L'accès invité reste le parcours actuel de la plateforme. L'action Google utilise le fournisseur OAuth Supabase existant et le callback `/auth/callback` ; le fournisseur Google doit être activé dans la configuration Supabase du déploiement. Aucune clé secrète n'est exposée au navigateur.
