@@ -417,3 +417,429 @@ input::placeholder, textarea::placeholder { color: #74838b; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Mates Welcome — dedicated split-screen sign-in experience. */
+.mates-auth-page {
+  min-height: 100svh;
+  padding: clamp(14px, 2.4vw, 34px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 80% 45%, #15164a 0, transparent 48rem),
+    radial-gradient(ellipse at 12% 90%, #101a3b 0, transparent 42rem),
+    #030711;
+}
+.mates-auth-shell {
+  width: min(100%, 1500px);
+  min-height: min(880px, calc(100svh - 48px));
+  display: grid;
+  grid-template-columns: minmax(440px, .92fr) minmax(420px, 1.08fr);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #29334e;
+  border-radius: 30px;
+  background: #070d1b;
+  box-shadow: 0 36px 120px #0009, 0 0 80px #6651ff0b;
+}
+.mates-auth-left {
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(30px, 4vw, 62px);
+  background:
+    radial-gradient(ellipse at 15% 0%, #15213b55, transparent 55%),
+    linear-gradient(155deg, #080f20 0%, #070d1b 58%, #080e1d 100%);
+}
+.mates-auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.mates-auth-brand .brand {
+  text-transform: uppercase;
+  font-size: 28px;
+  letter-spacing: .04em;
+  color: #f8faff;
+  font-weight: 850;
+}
+.mates-auth-brand .brand > span { font-size: 0; }
+.mates-auth-brand .brand > span::before {
+  content: "MATES";
+  font-size: 28px;
+}
+.mates-auth-brand .brand-dot { display: none; }
+.mates-auth-brand .brand svg {
+  width: 38px;
+  height: 38px;
+  transform: none;
+}
+.mates-auth-brand .brand svg rect { fill: transparent; }
+.mates-auth-brand .brand svg path { stroke: #f7f9ff; }
+.mates-auth-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8392ad;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .15em;
+  white-space: nowrap;
+}
+.mates-auth-online i, .mates-auth-visual-badge i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a3ff12;
+  box-shadow: 0 0 12px #a3ff12a0;
+}
+.mates-auth-content {
+  width: min(100%, 420px);
+  margin: auto;
+  padding-block: 48px;
+  text-align: center;
+}
+.mates-auth-mark {
+  width: 78px;
+  height: 58px;
+  position: relative;
+  margin: 0 auto 25px;
+}
+.mates-mark-person {
+  position: absolute;
+  bottom: 0;
+  width: 27px;
+  height: 39px;
+  border-radius: 17px 17px 7px 7px;
+  transform: skew(-17deg);
+}
+.mates-mark-person::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  top: -21px;
+  left: 4px;
+  background: inherit;
+}
+.mates-mark-person::after {
+  content: "";
+  position: absolute;
+  height: 17px;
+  width: 38px;
+  border-radius: 18px;
+  top: 12px;
+  left: 10px;
+  transform: rotate(-42deg);
+  background: inherit;
+}
+.mates-mark-white { left: 8px; background: #f5f7ff; z-index: 2; }
+.mates-mark-lime { right: 8px; background: #a3ff12; transform: skew(17deg); }
+.mates-auth-kicker {
+  color: #9ba9c3;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .2em;
+  margin-bottom: 13px;
+}
+.mates-auth-content h1 {
+  color: #fbfcff;
+  font-size: clamp(34px, 3.4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -.06em;
+  font-weight: 800;
+}
+.mates-auth-subtitle {
+  color: #aab5cc;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.mates-auth-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 30px;
+}
+.mates-auth-primary, .mates-auth-secondary, .mates-auth-google {
+  min-height: 56px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.mates-auth-primary {
+  color: #111908;
+  background: linear-gradient(100deg, #b5ff24, #8fe900);
+  border: 1px solid #c5ff57;
+  box-shadow: 0 8px 28px #a3ff1228;
+}
+.mates-auth-primary svg:last-child { margin-left: auto; margin-right: 18px; }
+.mates-auth-primary svg:first-child { margin-left: 18px; }
+.mates-auth-primary:hover { transform: translateY(-2px); background: #c4ff4b; box-shadow: 0 12px 32px #a3ff1240; }
+.mates-auth-secondary {
+  color: #f1f4ff;
+  background: #171f36;
+  border: 1px solid #202b48;
+}
+.mates-auth-secondary:hover { transform: translateY(-2px); background: #202b49; border-color: #4b5a82; }
+.mates-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 23px 0 17px;
+  color: #9ba6bd;
+  font-size: 12px;
+}
+.mates-auth-divider span { flex: 1; height: 1px; background: #2b3550; }
+.mates-auth-divider b { font-weight: 500; }
+.mates-auth-google {
+  width: 100%;
+  min-height: 54px;
+  background: #0b1222;
+  border: 1px solid #34405f;
+  color: #f2f5ff;
+  cursor: pointer;
+  font-weight: 650;
+}
+.mates-auth-google:hover:not(:disabled) { background: #111c34; border-color: #6677a7; transform: translateY(-1px); }
+.mates-auth-google:disabled { opacity: .65; cursor: wait; }
+.mates-google-g {
+  font-size: 21px;
+  line-height: 1;
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  color: #4285f4;
+  text-shadow: 1px 1px #34a853, -1px -1px #ea4335;
+}
+.mates-auth-google svg:last-child { margin-left: auto; margin-right: 18px; opacity: 0; }
+.mates-auth-skip {
+  display: block;
+  margin: 17px auto 0;
+  padding: 5px 12px;
+  color: #9ca8c1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+.mates-auth-skip:hover { color: #dfe7ff; }
+.mates-auth-email-area { margin-top: 22px; }
+.mates-auth-email-toggle {
+  color: #8190ae;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+.mates-auth-email-toggle:hover { color: #c7d4f5; }
+.mates-auth-email-panel {
+  margin-top: 15px;
+  padding: 19px;
+  text-align: left;
+  border-radius: 17px;
+  background: #0b1323;
+  border: 1px solid #2a3858;
+}
+.mates-auth-email-panel .launcher-tabs { margin-bottom: 17px; }
+.mates-auth-email-form { display: grid; gap: 9px; }
+.mates-auth-email-form label { color: #cbd5ed; font-size: 11px; margin-top: 4px; }
+.mates-auth-email-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #34415f;
+  background: #080f1e;
+  color: #f4f6ff;
+  outline-offset: 2px;
+}
+.mates-auth-email-form input:focus { border-color: #a3ff12; }
+.mates-auth-email-form .button { margin-top: 7px; }
+.mates-auth-email-panel .account-logout { margin-top: 12px; }
+.mates-auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #76839c;
+  font-size: 10px;
+}
+.mates-auth-footer span:first-child { display: flex; align-items: center; gap: 7px; }
+.mates-auth-footer svg { color: #a3ff12; }
+.mates-auth-notice, .mates-auth-error {
+  margin-top: 13px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.mates-auth-notice { color: #d7e8ce; background: #17271c; border: 1px solid #385b35; }
+.mates-auth-error { color: #ffd4d7; background: #321921; border: 1px solid #71333f; }
+.mates-auth-visual {
+  min-width: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 55% 48%, #3432a8 0%, #191b61 31%, transparent 65%),
+    linear-gradient(145deg, #111a3b 0%, #101337 50%, #070c20 100%);
+}
+.mates-auth-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .3;
+  background-image: linear-gradient(#7386ff12 1px, transparent 1px), linear-gradient(90deg, #7386ff12 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(transparent, #000 30%, #000 80%, transparent);
+}
+.mates-auth-visual-glow {
+  position: absolute;
+  width: 65%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #5a48ff40;
+  filter: blur(85px);
+  top: 23%;
+  left: 18%;
+  z-index: -1;
+}
+.mates-auth-neon-ribbon {
+  position: absolute;
+  width: 150px;
+  height: 820px;
+  right: -14px;
+  top: -155px;
+  border-radius: 100px;
+  transform: rotate(35deg);
+  background: linear-gradient(180deg, #c2ff36, #a3ff12 55%, #77c900);
+  box-shadow: 0 0 55px #a3ff1260;
+  z-index: -1;
+}
+.mates-auth-orbit {
+  position: absolute;
+  border: 1px solid #9caaff35;
+  border-radius: 50%;
+  transform: rotate(-22deg);
+  pointer-events: none;
+}
+.mates-auth-orbit-one { width: 75%; height: 48%; }
+.mates-auth-orbit-two { width: 95%; height: 64%; border-color: #9a83ff20; transform: rotate(25deg); }
+.mates-auth-mascot {
+  width: min(92%, 690px);
+  height: auto;
+  max-height: 88%;
+  object-fit: contain;
+  object-position: center;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 35px 38px #0009);
+  transform: translate(1%, 1%);
+}
+.mates-auth-spark {
+  position: absolute;
+  z-index: 2;
+  color: #a3ff12;
+  text-shadow: 0 0 22px #a3ff1290;
+}
+.mates-auth-spark-one { top: 19%; left: 12%; font-size: 45px; }
+.mates-auth-spark-two { top: 29%; right: 10%; font-size: 25px; color: #d7c7ff; }
+.mates-auth-visual-caption {
+  position: absolute;
+  z-index: 3;
+  left: 28px;
+  bottom: 26px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 16px;
+  border: 1px solid #ffffff28;
+  border-radius: 15px;
+  background: #090e20b8;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 35px #0004;
+}
+.mates-auth-caption-icon {
+  width: 33px;
+  height: 33px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #a3ff12;
+  background: #a3ff121c;
+}
+.mates-auth-visual-caption strong { display: block; color: #fff; font-size: 12px; }
+.mates-auth-visual-caption small { display: block; color: #9eabc9; font-size: 10px; margin-top: 2px; }
+.mates-auth-visual-badge {
+  position: absolute;
+  right: 25px;
+  bottom: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c0c9e2;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .15em;
+}
+@media (min-width: 1400px) {
+  .mates-auth-shell { min-height: min(940px, calc(100svh - 68px)); }
+  .mates-auth-left { padding: 64px 70px; }
+}
+@media (max-width: 900px) {
+  .mates-auth-page { padding: 12px; }
+  .mates-auth-shell { min-height: calc(100svh - 24px); grid-template-columns: minmax(350px, .95fr) minmax(300px, 1.05fr); }
+  .mates-auth-left { padding: 28px; }
+  .mates-auth-online { display: none; }
+  .mates-auth-visual-caption { left: 15px; bottom: 15px; }
+  .mates-auth-visual-badge { display: none; }
+}
+@media (max-width: 680px) {
+  .mates-auth-page { display: block; padding: 0; overflow: visible; min-height: 100svh; }
+  .mates-auth-shell {
+    width: 100%;
+    min-height: 100svh;
+    border: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .mates-auth-left { order: 1; padding: 24px 22px 20px; min-height: 100svh; }
+  .mates-auth-brand .brand, .mates-auth-brand .brand > span::before { font-size: 24px; }
+  .mates-auth-content { width: min(100%, 420px); padding-block: 48px; }
+  .mates-auth-mark { margin-bottom: 23px; }
+  .mates-auth-content h1 { font-size: 39px; }
+  .mates-auth-visual {
+    order: 2;
+    min-height: 430px;
+    display: none;
+  }
+  .mates-auth-mascot { width: 92%; max-height: 400px; }
+  .mates-auth-visual-caption { bottom: 14px; }
+  .mates-auth-footer { margin-top: auto; }
+}
+@media (max-width: 380px) {
+  .mates-auth-left { padding-inline: 17px; }
+  .mates-auth-content { padding-block: 38px; }
+  .mates-auth-content h1 { font-size: 35px; }
+  .mates-auth-primary, .mates-auth-secondary, .mates-auth-google { min-height: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mates-auth-primary, .mates-auth-secondary, .mates-auth-google { transition: none; }
+}
